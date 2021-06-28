@@ -17,7 +17,8 @@ libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0
 libraryDependencies += "org.mockito" % "mockito-core" % "2.28.2" % Test
 libraryDependencies += "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-28" % "0.49.0"
 libraryDependencies += "com.typesafe.play" %% "play-json" % "2.10.0-RC2"
-
+libraryDependencies += "org.scalatestplus" %% "mockito-3-4" % "3.2.5.0"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.5"
 
 
 
