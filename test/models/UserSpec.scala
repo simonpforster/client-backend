@@ -3,7 +3,7 @@ package models
 import helpers.AbstractTest
 import play.api.libs.json.{JsSuccess, JsValue, Json}
 
-class UserTest extends AbstractTest {
+class UserSpec extends AbstractTest {
   val user: User = User("myCRN", "MyPass")
   val userJson: JsValue = Json.parse(
     s"""{"crn": "${user.crn}", "password": "${user.password}"}""".stripMargin
