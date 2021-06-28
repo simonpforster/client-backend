@@ -4,10 +4,6 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET     /                           controllers.BasicController.index()
-#GET    /checkVehicle/:vehicleName  controllers.BasicController.getOneVehicleName(vehicleName: String)
-POST    /form                       controllers.BasicController.receiveForm()
-POST    /populateDB                  controllers.BasicController.create()
 
 
 # Map static resources from the /public folder to the /assets URL path
