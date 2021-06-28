@@ -3,7 +3,7 @@ package models
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsSuccess, JsValue, Json}
 import play.api.test.Injecting
 
 import scala.language.postfixOps
@@ -38,13 +38,23 @@ class ClientSpec extends AnyWordSpec with GuiceOneAppPerTest with Injecting with
 			}""".stripMargin)
 
 	"client" can {
-		"format" should {
-			"be match" in {
+		"format to json" should {
+			"succeed with ARN" in {
 				Json.toJson(testClient) shouldBe testClientJs
 			}
 
-			"not match" in {
+			"succeed without ARN" in {
 				Json.toJson(testClient.copy(arn = None)) shouldBe testClientJsNone
+			}
+		}
+
+		"format from json" should {
+			"succeed with ARN" in {
+				Json.fromJson[Client](testClientJs) shouldBe JsSuccess(testClient)
+			}
+
+			"succeed without ARN" in {
+				Json.fromJson[Client](testClientJsNone) shouldBe JsSuccess(testClient.copy(arn = None))
 			}
 		}
 	}
