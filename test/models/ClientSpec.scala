@@ -10,13 +10,12 @@ import scala.language.postfixOps
 
 class ClientSpec extends AnyWordSpec with GuiceOneAppPerTest with Injecting with Matchers {
 
-	val testClient: Client = Client("testCrn", "testFirst", "testLast", "testBusiness", "testContact", 12, "testPostCode", "testBusinessType", Some("testArn"))
+	val testClient: Client = Client("testCrn", "testName", "testBusiness", "testContact", 12, "testPostCode", "testBusinessType", Some("testArn"))
 
 	val testClientJs: JsValue = Json.parse(
 		"""{
 				"crn": "testCrn",
-				"firstName": "testFirst",
-				"lastName": "testLast",
+				"name": "testName",
 				"businessName": "testBusiness",
 				"contactNumber": "testContact",
 				"propertyNumber": 12,
@@ -28,8 +27,7 @@ class ClientSpec extends AnyWordSpec with GuiceOneAppPerTest with Injecting with
 	val testClientJsNone: JsValue = Json.parse(
 		"""{
 				"crn": "testCrn",
-				"firstName": "testFirst",
-				"lastName": "testLast",
+				"name": "testName",
 				"businessName": "testBusiness",
 				"contactNumber": "testContact",
 				"propertyNumber": 12,

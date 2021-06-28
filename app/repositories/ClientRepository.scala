@@ -15,7 +15,7 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
 	mongoComponent = mongoComponent,
 	domainFormat   = Client.format,
 	indexes        = Seq(
-		IndexModel(ascending("lastName"), IndexOptions().unique(true)
+		IndexModel(ascending("crn"), IndexOptions().unique(true)
 		))
 ){
 
@@ -24,6 +24,8 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
 	def read(crn: String): Future[Client] = ???
 
 	def readAll(): Future[List[Client]] = ???
+
+	def readAllAgent(arn: String): Future[List[Client]] = ???
 
 	def update(updatedClient: Client): Future[Boolean] = ???
 
