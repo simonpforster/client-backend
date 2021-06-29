@@ -30,12 +30,22 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
 		"monkey"-> "do"
 	)
 
+	private val testClientDeleteJson = Json.obj(
+		"crn"-> "RANDOM"
+	)
+
+	private val testClientDeleteBadJson = Json.obj(
+		"firstField" -> "fail",
+		"secondField"-> "RANDOM"
+	)
+
 	val clientRepository: ClientRepository = mock(classOf[ClientRepository])
 
 	val clientController: ClientController = new ClientController(Helpers.stubControllerComponents(), clientRepository, Helpers.stubControllerComponents().executionContext)
 
 	private val fakePatchRequest = FakeRequest("PATCH", "/")
 	private val fakeGetRequest = FakeRequest("GET", "/")
+	private val fakeDeleteRequest = FakeRequest("DELETE", "/")
 
 	"ClientController" can {
 		"read" should {
@@ -94,6 +104,32 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
 				status(result) shouldBe BAD_REQUEST
 			}
  		}
+
+
+		"deleteClient" should{
+			"NoContent" in {
+				when(clientRepository.delete(any())).thenReturn(Future.successful((true)))
+
+				val result = clientController.deleteClient.apply(fakeDeleteRequest.withBody(testClientDeleteJson))
+
+				status(result) shouldBe NO_CONTENT
+			}
+
+			"NotFound" in {
+				when(clientRepository.delete(any())).thenReturn(Future.successful((false)))
+
+				val result = clientController.deleteClient.apply(fakeDeleteRequest.withBody(testClientDeleteJson))
+
+				status(result) shouldBe NOT_FOUND
+			}
+
+			"BadRequest" in {
+				val result = clientController.deleteClient.apply(fakeDeleteRequest.withBody(testClientDeleteBadJson))
+
+				status(result) shouldBe BAD_REQUEST
+			}
+		}
+
 	}
 
 }

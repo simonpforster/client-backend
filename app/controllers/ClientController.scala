@@ -38,4 +38,14 @@ class ClientController @Inject()(cc: ControllerComponents,
 			case JsError(_) => Future.successful(BadRequest)
 		}
 	}
+
+	val deleteClient: Action[JsValue] = Action.async(parse.json) { implicit request =>
+		request.body.validate[CRN] match {
+			case JsSuccess(value, _) => clientRepository.delete(value.crn).map{_ match {
+				case true =>  NoContent
+				case false => NotFound
+			}}
+			case JsError(_) => Future.successful(BadRequest)
+		}
+	}
 }
