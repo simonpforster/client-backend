@@ -22,7 +22,10 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
     ))
 ) {
 
-  def create(client: Client): Future[Boolean] = collection.insertOne(client).toFuture().map(_ => true).recover { case _ => false }
+  def create(client: Client): Future[Boolean] = collection.insertOne(client).toFuture().map {
+    response => if(response.wasAcknowledged && response.getInsertedId != null) true
+    else false
+  }
 
 	def read(crn: String): Future[Option[Client]] = collection.find(Filters.eq("crn", crn)).headOption()
 

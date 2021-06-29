@@ -17,7 +17,7 @@ class RegistrationControllerSpec extends AbstractTest {
 
   val rs: RegistrationService = mock(classOf[RegistrationService])
   val controller: RegistrationController = new RegistrationController(Helpers.stubControllerComponents(),rs)
-  val testClient: Client = new Client("testCrn", "testName", "testBusiness", "testContact", 12, "testPostcode", "testBusinessType", Some("testArn"))
+  val testClient: Client = Client("testCrn", "testName", "testBusiness", "testContact", 12, "testPostcode", "testBusinessType", Some("testArn"))
   val fakePostRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("POST", "/")
   private val testBadJson = Json.obj(
     "monkey"-> "do"

@@ -17,7 +17,10 @@ class UserRepository  @Inject()(mongoComponent: MongoComponent)(implicit ec: Exe
 		IndexModel(ascending("crn"), IndexOptions().unique(true)
 		))
 ){
-  def create(user: User): Future[Boolean] = collection.insertOne(user).toFuture().map(_ => true).recover { case _ => false }
+  def create(user: User): Future[Boolean] = collection.insertOne(user).toFuture().map{
+		response => if(response.wasAcknowledged && response.getInsertedId != null) true
+		else false
+	}
 
 	def login(user: User): Future[Boolean] = ???
 
