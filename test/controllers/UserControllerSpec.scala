@@ -15,9 +15,6 @@ import service.EncryptionService
 import scala.concurrent.Future
 
 class UserControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
-
-
-
 	private val testBadJson = Json.obj(
 		"monkey"-> "do"
 	)
@@ -25,7 +22,6 @@ class UserControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
 	val nonce: Array[Byte] = crypto.getNonce
 	val testPass = "testPass"
 	val ePassword = new EncryptedPassword(crypto.encrypt(testPass.getBytes, crypto.getKey, nonce), nonce)
-
 	private val testUser = User("testCrn", ePassword)
 	private val testUserJson = Json.toJson(testUser)
 

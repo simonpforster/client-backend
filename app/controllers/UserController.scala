@@ -13,8 +13,6 @@ class UserController @Inject()(cc: ControllerComponents,
 															 userRepository: UserRepository, ec: ExecutionContext)
 	extends AbstractController(cc) {
 
-
-
 	// NOT USED NO ROUTES
 	val read: Action[JsValue] = Action.async(parse.json) { implicit request =>
 		request.body.validate[CRN] match {

@@ -13,7 +13,7 @@ import scala.concurrent.Future
 class RegistrationController @Inject()(cc: ControllerComponents,
                                        rs: RegistrationService)
   extends AbstractController(cc) {
-  def register(): Action[JsValue] = Action.async(parse.json) { implicit request =>
+  def register: Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body.validate[ClientRegistration] match {
       case JsSuccess(client, _) =>
         rs.register(client).map {
