@@ -1,16 +1,12 @@
 package models
 
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
+import helpers.AbstractTest
 import play.api.libs.json.{JsSuccess, JsValue, Json}
-import play.api.test.Injecting
 
-import scala.language.postfixOps
 
-class ClientSpec extends AnyWordSpec with GuiceOneAppPerTest with Injecting with Matchers {
+class ClientSpec extends AbstractTest {
 
-	val testClient: Client = Client("testCrn", "testName", "testBusiness", "testContact", 12, "testPostCode", "testBusinessType", Some("testArn"))
+	val testClient: Client = Client("testCrn", "testName", "testBusiness", "testContact", 12, "testPostcode", "testBusinessType", Some("testArn"))
 
 	val testClientJs: JsValue = Json.parse(
 		"""{
@@ -19,7 +15,7 @@ class ClientSpec extends AnyWordSpec with GuiceOneAppPerTest with Injecting with
 				"businessName": "testBusiness",
 				"contactNumber": "testContact",
 				"propertyNumber": 12,
-				"postCode": "testPostCode",
+				"postcode": "testPostcode",
 				"businessType": "testBusinessType",
 				"arn": "testArn"
 			}""".stripMargin)
@@ -31,7 +27,7 @@ class ClientSpec extends AnyWordSpec with GuiceOneAppPerTest with Injecting with
 				"businessName": "testBusiness",
 				"contactNumber": "testContact",
 				"propertyNumber": 12,
-				"postCode": "testPostCode",
+				"postcode": "testPostcode",
 				"businessType": "testBusinessType"
 			}""".stripMargin)
 

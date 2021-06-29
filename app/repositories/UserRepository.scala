@@ -1,29 +1,27 @@
 package repositories
 
 import models.User
-import org.mongodb.scala.model.{IndexModel, IndexOptions}
+import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions}
 import org.mongodb.scala.model.Indexes.ascending
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-@Singleton
-class UserRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: ExecutionContext) extends PlayMongoRepository[User](
-  collectionName = "users",
-  mongoComponent = mongoComponent,
-  domainFormat = User.format,
-  indexes = Seq(
-    IndexModel(ascending("crn"), IndexOptions().unique(true)
-    ))
-) {
-
+class UserRepository  @Inject()(mongoComponent: MongoComponent)(implicit ec: ExecutionContext) extends PlayMongoRepository[User](
+	collectionName = "users",
+	mongoComponent = mongoComponent,
+	domainFormat   = User.format,
+	indexes        = Seq(
+		IndexModel(ascending("crn"), IndexOptions().unique(true)
+		))
+){
   def create(user: User): Future[Boolean] = collection.insertOne(user).toFuture().map(_ => true).recover { case _ => false }
 
-  def read(crn: String): Future[User] = ???
+	def login(user: User): Future[Boolean] = ???
 
-  def update(updatedUser: User): Future[Boolean] = ???
+	def read(crn: String): Future[Option[User]] = collection.find(Filters.eq("crn", crn)).headOption()
 
-  def delete(crn: String): Future[Boolean] = ???
+	def delete(crn: String): Future[Boolean] = ???
 }

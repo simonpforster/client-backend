@@ -3,7 +3,10 @@
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 
-# An example controller showing a sample home page
+
+# Client routes
+PATCH   /addAgent                   controllers.ClientController.addAgent
+GET     /read                       controllers.ClientController.read
 
 
 # Map static resources from the /public folder to the /assets URL path
