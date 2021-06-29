@@ -1,8 +1,8 @@
 package controllers
 
-import models.ClientAgentPair
+import models.{CRN, ClientAgentPair}
 import play.api.libs.json.Format.GenericFormat
-import play.api.libs.json.{JsError, JsSuccess, JsValue}
+import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc._
 import repositories.ClientRepository
 
@@ -16,6 +16,17 @@ class ClientController @Inject()(cc: ControllerComponents,
 																 clientRepository: ClientRepository, ec: ExecutionContext)
   extends AbstractController(cc) {
 
+	val read: Action[JsValue] = Action.async(parse.json) { implicit request =>
+		request.body.validate[CRN] match {
+			case JsSuccess(value, _) =>
+				clientRepository.read(value.crn).map{_ match {
+					case Some(client) => Ok(Json.toJson(client))
+					case None => NotFound
+				}}
+			case JsError(_) => Future(BadRequest)
+		}
+	}
+
 	val addAgent: Action[JsValue] = Action.async(parse.json) { implicit request =>
 		request.body.validate[ClientAgentPair] match {
 			case JsSuccess(value, _) => clientRepository.addAgent(value.crn, value.arn).map{_ match {
@@ -27,10 +38,4 @@ class ClientController @Inject()(cc: ControllerComponents,
 			case JsError(_) => Future.successful(BadRequest)
 		}
 	}
-
-	val read: Action[JsValue] = Action.async(parse.json) { implicit request =>
-
-	}
-
-
 }
