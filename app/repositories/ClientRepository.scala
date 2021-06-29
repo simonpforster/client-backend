@@ -25,7 +25,7 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
 
 	def create(client: Client): Future[Boolean] = ???
 
-	def read(crn: String): Future[Client] = ???
+	def read(crn: String): Future[Option[Client]] = ???
 
 	def readAll(): Future[List[Client]] = ???
 

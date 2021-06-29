@@ -31,7 +31,7 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
 
 				await(repository.addAgent("testCrn", "testArn")) shouldBe (true, true)
 
-				await(repository.read("testCrn")).arn shouldBe "testArn"
+				await(repository.read("testCrn")).get.arn shouldBe "testArn"
 			}
 
 			"fail because not found" in {
@@ -45,7 +45,7 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
 
 				await(repository.addAgent("testCrn", "testArn")) shouldBe (true, false)
 
-				await(repository.read("testCrn")).arn shouldBe "otherArn"
+				await(repository.read("testCrn")).get.arn shouldBe "otherArn"
 			}
 		}
 	}
