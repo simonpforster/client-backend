@@ -5,6 +5,10 @@ version := "1.0-SNAPSHOT"
 
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
+	.settings(routesGenerator := InjectedRoutesGenerator)
+	.configs(ITest)
+	.settings( inConfig(ITest)(Defaults.testSettings) : _*)
+lazy val ITest = config("it") extend(Test)
 
 scalaVersion := "2.12.13"
 
