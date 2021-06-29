@@ -11,23 +11,23 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: ExecutionContext) extends PlayMongoRepository[Client](
-	collectionName = "clients",
-	mongoComponent = mongoComponent,
-	domainFormat   = Client.format,
-	indexes        = Seq(
-		IndexModel(ascending("crn"), IndexOptions().unique(true)
-		))
-){
+  collectionName = "clients",
+  mongoComponent = mongoComponent,
+  domainFormat = Client.format,
+  indexes = Seq(
+    IndexModel(ascending("crn"), IndexOptions().unique(true)
+    ))
+) {
 
-	def create(client: Client): Future[Boolean] = ???
+  def create(client: Client): Future[Boolean] = ???
 
-	def read(crn: String): Future[Client] = ???
+  def read(crn: String): Future[Client] = ???
 
-	def readAll(): Future[List[Client]] = ???
+  def readAll(): Future[List[Client]] = ???
 
-	def readAllAgent(arn: String): Future[List[Client]] = ???
+  def readAllAgent(arn: String): Future[List[Client]] = ???
 
-	def update(updatedClient: Client): Future[Boolean] = ???
+  def update(updatedClient: Client): Future[Boolean] = ???
 
-	def delete(crn: String): Future[Boolean] = ???
+  def delete(crn: String): Future[Boolean] = ???
 }
