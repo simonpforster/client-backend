@@ -25,6 +25,15 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
 	val testClient = Client("testCrn", "testName", "testBusinessName", "testNumber", 12, "testCode", "testType")
 
 	"ClientRepository" can {
+		"read client" in {
+			"succeed" in {
+				await(repository.create(testClient))
+
+				await(repository.)
+			}
+		}
+
+
 		"add agent" should {
 			"succeed" in {
 				await(repository.create(testClient))

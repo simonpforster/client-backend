@@ -6,7 +6,7 @@ import play.api.libs.json.{JsSuccess, JsValue, Json}
 
 class ClientSpec extends AbstractTest {
 
-	val testClient: Client = Client("testCrn", "testName", "testBusiness", "testContact", 12, "testPostCode", "testBusinessType", Some("testArn"))
+	val testClient: Client = Client("testCrn", "testName", "testBusiness", "testContact", 12, "testPostcode", "testBusinessType", Some("testArn"))
 
 	val testClientJs: JsValue = Json.parse(
 		"""{
@@ -15,7 +15,7 @@ class ClientSpec extends AbstractTest {
 				"businessName": "testBusiness",
 				"contactNumber": "testContact",
 				"propertyNumber": 12,
-				"postCode": "testPostCode",
+				"postcode": "testPostcode",
 				"businessType": "testBusinessType",
 				"arn": "testArn"
 			}""".stripMargin)
@@ -27,7 +27,7 @@ class ClientSpec extends AbstractTest {
 				"businessName": "testBusiness",
 				"contactNumber": "testContact",
 				"propertyNumber": 12,
-				"postCode": "testPostCode",
+				"postcode": "testPostcode",
 				"businessType": "testBusinessType"
 			}""".stripMargin)
 

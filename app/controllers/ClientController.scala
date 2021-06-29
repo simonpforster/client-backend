@@ -28,5 +28,9 @@ class ClientController @Inject()(cc: ControllerComponents,
 		}
 	}
 
+	val read: Action[JsValue] = Action.async(parse.json) { implicit request =>
+
+	}
+
 
 }

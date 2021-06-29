@@ -6,7 +6,7 @@ import com.mongodb.client.model.Updates.set
 import models.Client
 import org.mongodb.scala.model.Filters.{equal, exists}
 import org.mongodb.scala.model.Indexes.ascending
-import org.mongodb.scala.model.{IndexModel, IndexOptions, UpdateOptions}
+import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, UpdateOptions}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
@@ -25,7 +25,7 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
 
 	def create(client: Client): Future[Boolean] = ???
 
-	def read(crn: String): Future[Option[Client]] = ???
+	def read(crn: String): Future[Option[Client]] = collection.find(Filters.eq("crn", crn)).headOption()
 
 	def readAll(): Future[List[Client]] = ???
 

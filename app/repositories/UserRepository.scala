@@ -1,7 +1,7 @@
 package repositories
 
 import models.User
-import org.mongodb.scala.model.{IndexModel, IndexOptions}
+import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions}
 import org.mongodb.scala.model.Indexes.ascending
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
@@ -21,7 +21,7 @@ class UserRepository  @Inject()(mongoComponent: MongoComponent)(implicit ec: Exe
 
 	def login(user: User): Future[Boolean] = ???
 
-	def read(crn: String): Future[Option[String]] = ???
+	def read(crn: String): Future[Option[User]] = collection.find(Filters.eq("crn", crn)).headOption()
 
 	def delete(crn: String): Future[Boolean] = ???
 }
