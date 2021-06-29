@@ -29,7 +29,11 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
 			"succeed" in {
 				await(repository.create(testClient))
 
-				await(repository.)
+				await(repository.read("testCrn")) shouldBe Some(testClient)
+			}
+
+			"fail because not found" in {
+				await(repository.read("scasfa")) shouldBe None
 			}
 		}
 
@@ -40,7 +44,7 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
 
 				await(repository.addAgent("testCrn", "testArn")) shouldBe (true, true)
 
-				await(repository.read("testCrn")).get.arn shouldBe "testArn"
+				await(repository.read("testCrn")) shouldBe Some(testClient)
 			}
 
 			"fail because not found" in {
@@ -54,7 +58,7 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
 
 				await(repository.addAgent("testCrn", "testArn")) shouldBe (true, false)
 
-				await(repository.read("testCrn")).get.arn shouldBe "otherArn"
+				await(repository.read("testCrn")) shouldBe Some(testClient.copy(arn = Some("otherArn")))
 			}
 		}
 	}
