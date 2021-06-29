@@ -20,6 +20,9 @@ libraryDependencies += "com.typesafe.play" %% "play-json" % "2.10.0-RC2"
 libraryDependencies += "org.scalatestplus" %% "mockito-3-4" % "3.2.5.0"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.5"
 
+resolvers += Resolver.bintrayRepo("hmrc", "releases")
+
+libraryDependencies += "uk.gov.hmrc.mongo" %% "hmrc-mongo-test-play-28" % "0.49.0"
 
 
 

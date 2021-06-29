@@ -1,8 +1,12 @@
 package repositories
 
+import com.mongodb.client.model.Filters.{and, or}
+import com.mongodb.client.model.UpdateOptions
+import com.mongodb.client.model.Updates.set
 import models.Client
+import org.mongodb.scala.model.Filters.{equal, exists}
 import org.mongodb.scala.model.Indexes.ascending
-import org.mongodb.scala.model.{IndexModel, IndexOptions}
+import org.mongodb.scala.model.{IndexModel, IndexOptions, UpdateOptions}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
@@ -30,4 +34,12 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
 	def update(updatedClient: Client): Future[Boolean] = ???
 
 	def delete(crn: String): Future[Boolean] = ???
+
+	def addAgent(crn: String, arn: String): Future[(Boolean, Boolean)] =
+		collection.find(equal("crn", crn)).toFuture().flatMap{x => if (x.length == 1) {
+			collection.updateOne(and(equal("crn", crn), exists("arn", false)), set("arn", arn))
+			.toFuture().map { response => if (response.wasAcknowledged && response.getModifiedCount == 1) (true, true) else (true, false) }}
+		else Future((false, true))
+	}
+	def removeAgent(crn: String): Future[Boolean] = ???
 }
