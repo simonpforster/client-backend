@@ -19,7 +19,7 @@ class UserRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
     ))
 ) {
 
-  def create(user: User): Future[Boolean] = ???
+  def create(user: User): Future[Boolean] = collection.insertOne(user).toFuture().map(_ => true).recover { case _ => false }
 
   def read(crn: String): Future[User] = ???
 

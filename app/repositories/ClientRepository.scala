@@ -19,7 +19,7 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
     ))
 ) {
 
-  def create(client: Client): Future[Boolean] = ???
+  def create(client: Client): Future[Boolean] = collection.insertOne(client).toFuture().map(_ => true).recover { case _ => false }
 
   def read(crn: String): Future[Client] = ???
 
