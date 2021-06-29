@@ -33,7 +33,15 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
 
 	def update(updatedClient: Client): Future[Boolean] = ???
 
-	def delete(crn: String): Future[Boolean] = ???
+	def delete(crn: String): Future[Boolean] = collection.find(equal("crn", crn)).toFuture().flatMap(client => {
+		if(client.size == 1) {
+			collection.deleteOne(equal("crn", crn)).toFuture().map {
+				response => if(response.wasAcknowledged && response.getDeletedCount == 1) true
+				else false
+			}
+		}else Future(false)
+	})
+
 
 	def addAgent(crn: String, arn: String): Future[(Boolean, Boolean)] =
 		collection.find(equal("crn", crn)).toFuture().flatMap{x => if (x.length == 1) {
