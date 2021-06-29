@@ -44,7 +44,7 @@ class RegistrationControllerSpec extends AbstractTest {
 
       val result = controller.register.apply(fakePostRequest.withBody(testUserJson))
 
-      status(result) shouldBe BAD_REQUEST
+      status(result) shouldBe UNAUTHORIZED
     }
 
     "return a BadRequest" in {
