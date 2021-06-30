@@ -38,4 +38,15 @@ class ClientController @Inject()(cc: ControllerComponents,
 			case JsError(_) => Future.successful(BadRequest)
 		}
 	}
+
+	val removeAgent: Action[JsValue] = Action.async(parse.json) { implicit request =>
+		request.body.validate[ClientAgentPair] match {
+			case JsSuccess(value, _) => clientRepository.removeAgent(value.crn, value.arn).map {
+				case (true, true) => NoContent
+				case (false, true) => NotFound
+				case (true, false) => Conflict
+				case _ => InternalServerError
+			}
+			case JsError(_) => Future.successful(BadRequest)
+		}
 }

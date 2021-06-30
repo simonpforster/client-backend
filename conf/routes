@@ -5,6 +5,7 @@
 
 
 # Client routes
+PATCH   /remove-agent                controllers.ClientController.removeAgent
 PATCH   /addAgent                   controllers.ClientController.addAgent
 GET     /read                       controllers.ClientController.read
 
