@@ -1,7 +1,6 @@
 package repositories
 
 import com.mongodb.client.model.Filters.{and, or}
-import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.Updates.set
 import models.Client
 import org.mongodb.scala.model.Filters.{equal, exists}
@@ -15,25 +14,34 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: ExecutionContext) extends PlayMongoRepository[Client](
-	collectionName = "clients",
-	mongoComponent = mongoComponent,
-	domainFormat   = Client.format,
-	indexes        = Seq(
-		IndexModel(ascending("crn"), IndexOptions().unique(true)
-		))
-){
+  collectionName = "clients",
+  mongoComponent = mongoComponent,
+  domainFormat = Client.format,
+  indexes = Seq(
+    IndexModel(ascending("crn"), IndexOptions().unique(true)),
+		IndexModel(ascending("arn"), IndexOptions().unique(false).sparse(true))
+	)
+) {
 
-	def create(client: Client): Future[Boolean] = ???
+  def create(client: Client): Future[Boolean] = collection.insertOne(client).toFuture().map {
+    response => if(response.wasAcknowledged && response.getInsertedId != null) true
+    else false
+  }
 
-	def read(crn: String): Future[Option[Client]] = collection.find(Filters.eq("crn", crn)).headOption()
+	def read(crn: String): Future[Option[Client]] = collection.find(equal("crn", crn)).headOption()
 
-	def readAll(): Future[List[Client]] = ???
+  def readAll(): Future[List[Client]] = ???
 
-	def readAllAgent(arn: String): Future[List[Client]] = ???
+  def readAllAgent(arn: String): Future[List[Client]] =
+		collection.find(equal("arn", arn)).toFuture().map{_.toList}
 
-	def update(updatedClient: Client): Future[Boolean] = ???
+  def update(updatedClient: Client): Future[Boolean] = ???
 
-	def delete(crn: String): Future[Boolean] = ???
+	def delete(crn: String): Future[Boolean] =
+			collection.deleteOne(equal("crn", crn)).toFuture().map {
+				response => if(response.wasAcknowledged && response.getDeletedCount == 1) true
+				else false
+			}
 
 	def addAgent(crn: String, arn: String): Future[(Boolean, Boolean)] =
 		collection.find(equal("crn", crn)).toFuture().flatMap{x => if (x.length == 1) {

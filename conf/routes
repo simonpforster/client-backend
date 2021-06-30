@@ -5,10 +5,14 @@
 
 
 # Client routes
-PATCH   /remove-agent                controllers.ClientController.removeAgent
-PATCH   /addAgent                   controllers.ClientController.addAgent
 GET     /read                       controllers.ClientController.read
+POST    /register                   controllers.RegistrationController.register
+DELETE  /delete-client               controllers.ClientController.deleteClient
 
+# Agent routes
+PATCH   /add-agent               controllers.ClientController.addAgent
+GET     /read-all-agent          controllers.ClientController.readAllAgent
+PATCH   /remove-agent                controllers.ClientController.removeAgent
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
