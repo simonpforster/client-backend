@@ -12,19 +12,30 @@ import service.{EncryptionService, RegistrationService}
 import scala.concurrent.Future
 
 class RegistrationSpec extends AbstractTest with GuiceOneAppPerSuite {
-  val testCRN = "CRNTEST"
+  val testCRN: String = "CRNTEST"
   val userRepo: UserRepository = mock(classOf[UserRepository])
   val clientRepo: ClientRepository = mock(classOf[ClientRepository])
   val crypto: EncryptionService = app.injector.instanceOf[EncryptionService]
-  val service: RegistrationService = new RegistrationService(userRepo, clientRepo, crypto)
+  val service: RegistrationService = new RegistrationService(
+    userRepo = userRepo,
+    clientRepo = clientRepo,
+    crypto = crypto)
   val clientReg: ClientRegistration = new ClientRegistration(
-    "testName", "testBusiness",
-    "testContact", 12, "testPostcode",
-    "testBusinessType", "testPassword")
-  val clientTest: Client = new Client(testCRN, clientReg.name,
-    clientReg.businessName, clientReg.contactNumber,
-    clientReg.propertyNumber, clientReg.postcode, clientReg.businessType)
-
+    name = "testName",
+    businessName = "testBusiness",
+    contactNumber = "testContact",
+    propertyNumber = 12,
+    postcode = "testPostcode",
+    businessType = "testBusinessType",
+    password = "testPassword")
+  val clientTest: Client = new Client(
+    crn = testCRN,
+    name = clientReg.name,
+    businessName = clientReg.businessName,
+    contactNumber = clientReg.contactNumber,
+    propertyNumber = clientReg.propertyNumber,
+    postcode = clientReg.postcode,
+    businessType = clientReg.businessType)
   "Registration Service" can {
     "Add a user and client to the database" should {
       "return true with correct details" in {

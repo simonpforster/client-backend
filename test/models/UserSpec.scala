@@ -1,16 +1,21 @@
 package models
 
 import helpers.AbstractTest
-import org.scalatest.Assertion
-import play.api.libs.json.{JsResult, JsSuccess, JsValue, Json}
+import play.api.libs.json.{JsValue, Json}
 
 class UserSpec extends AbstractTest {
-  val user: User = User("myCRN", EncryptedPassword("MyPass".getBytes, "MyNonce".getBytes))
+  val user: User = User(
+    crn = "myCRN",
+    password = EncryptedPassword(
+      ePassword = "MyPass".getBytes,
+      nonce = "MyNonce".getBytes))
+
   val userJson: JsValue = Json.parse(
     s"""{"crn": "${user.crn}",
        "password":{ "ePassword": ${user.password.ePassword.mkString("[", ", ", "]")},
        "nonce": ${user.password.nonce.mkString("[", ", ", "]")}}}""".stripMargin
   )
+
   "User" can {
     "format" should {
       "Turn a user to readable json" in {

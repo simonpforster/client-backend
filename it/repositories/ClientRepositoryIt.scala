@@ -9,7 +9,6 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
-
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
@@ -22,10 +21,23 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
 	override implicit lazy val app: Application = new GuiceApplicationBuilder()
 		.configure().build()
 
-	val testClient = Client("testCrn", "testName", "testBusinessName", "testNumber", 12, "testCode", "testType")
+	val testClient: Client = Client("testCrn", "testName", "testBusinessName", "testNumber", 12, "testCode", "testType")
 
 	"ClientRepository" can {
-		"read client" should {
+    "create" should {
+      "return true" in {
+        val result: Boolean = await(repository.create(testClient))
+        result shouldBe true
+      }
+    	"create" should {
+				"fail if not unique" in {
+					await(repository.create(testClient))
+					val result: Boolean = await(repository.create(testClient))
+					result shouldBe false
+				}
+			}
+		}
+    "read client" should {
 			"succeed" in {
 				await(repository.create(testClient))
 
@@ -74,6 +86,4 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
 			}
 		}
 	}
-
-
 }

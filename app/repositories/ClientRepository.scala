@@ -1,14 +1,13 @@
 package repositories
 
-import com.mongodb.client.model.Filters.{and, or}
+import com.mongodb.client.model.Filters.and
 import com.mongodb.client.model.Updates.set
 import models.Client
 import org.mongodb.scala.model.Filters.{equal, exists}
 import org.mongodb.scala.model.Indexes.ascending
-import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, UpdateOptions}
+import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
-
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -24,9 +23,8 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
 ) {
 
   def create(client: Client): Future[Boolean] = collection.insertOne(client).toFuture().map {
-    response => if(response.wasAcknowledged && response.getInsertedId != null) true
-    else false
-  }
+    response => response.wasAcknowledged && !response.getInsertedId.isNull
+  }recover{case _ => false}
 
 	def read(crn: String): Future[Option[Client]] = collection.find(equal("crn", crn)).headOption()
 
@@ -39,8 +37,7 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
 
 	def delete(crn: String): Future[Boolean] =
 			collection.deleteOne(equal("crn", crn)).toFuture().map {
-				response => if(response.wasAcknowledged && response.getDeletedCount == 1) true
-				else false
+				response => response.wasAcknowledged && response.getDeletedCount == 1
 			}
 
 	def addAgent(crn: String, arn: String): Future[(Boolean, Boolean)] =

@@ -6,7 +6,8 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{mock, when}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
 import play.api.test.{FakeRequest, Helpers}
 import repositories.UserRepository
@@ -15,51 +16,53 @@ import service.EncryptionService
 import scala.concurrent.Future
 
 class UserControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
-	private val testBadJson = Json.obj(
-		"monkey"-> "do"
-	)
-	val crypto: EncryptionService = app.injector.instanceOf[EncryptionService]
-	val nonce: Array[Byte] = crypto.getNonce
-	val testPass = "testPass"
-	val ePassword = new EncryptedPassword(crypto.encrypt(testPass.getBytes, crypto.getKey, nonce), nonce)
-	private val testUser = User("testCrn", ePassword)
-	private val testUserJson = Json.toJson(testUser)
+  val crypto: EncryptionService = app.injector.instanceOf[EncryptionService]
+  val nonce: Array[Byte] = crypto.getNonce
+  val testPass = "testPass"
+  val ePassword = new EncryptedPassword(
+    ePassword = crypto.encrypt(testPass.getBytes, crypto.getKey, nonce),
+    nonce = nonce)
+  val testUser: User = User(
+    crn = "testCrn",
+    password = ePassword)
+  val testUserJson: JsValue = Json.toJson(testUser)
+  val userRepository: UserRepository = mock(classOf[UserRepository])
+  val userController: UserController = new UserController(
+    cc = Helpers.stubControllerComponents(),
+    userRepository = userRepository,
+    crypto = crypto)
+  //may be needed in future
+  //val fakePatchRequest = FakeRequest("PATCH", "/")
+  val fakeGetRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(method = "GET", path = "/")
+  val testUserCrn: JsObject = Json.obj(
+    "crn" -> "testCrn"
+  )
+  val testBadJson: JsObject = Json.obj(
+    "monkey" -> "do"
+  )
+  "UserController" can {
+    "read" should {
+      "Ok" in {
+        when(userRepository.read(any())) thenReturn Future.successful(Some(testUser))
 
-	private val testUserCrn = Json.obj(
-		"crn" -> "testCrn"
-	)
+        val result: Future[Result] = userController.read.apply(fakeGetRequest.withBody(testUserCrn))
+        status(result) shouldBe OK
+        contentAsJson(result) shouldBe Json.toJson(testUser)
+      }
 
+      "NotFound" in {
+        when(userRepository.read(any())) thenReturn Future.successful(None)
 
-	val userRepository: UserRepository = mock(classOf[UserRepository])
+        val result: Future[Result] = userController.read.apply(fakeGetRequest.withBody(testUserCrn))
 
-	val userController: UserController = new UserController(Helpers.stubControllerComponents(), userRepository, Helpers.stubControllerComponents().executionContext)
+        status(result) shouldBe NOT_FOUND
+      }
 
-	private val fakePatchRequest = FakeRequest("PATCH", "/")
-	private val fakeGetRequest = FakeRequest("GET", "/")
+      "BadRequest" in {
+        val result: Future[Result] = userController.read.apply(fakeGetRequest.withBody(testBadJson))
 
-
-	"UserController" can {
-		"read" should {
-			"Ok" in {
-				when(userRepository.read(any())).thenReturn(Future.successful(Some(testUser)))
-				val result = userController.read.apply(fakeGetRequest.withBody(testUserCrn))
-				status(result) shouldBe OK
-				contentAsJson(result) shouldBe Json.toJson(testUser)
-			}
-
-			"NotFound" in {
-				when(userRepository.read(any())).thenReturn(Future.successful(None))
-
-				val result = userController.read.apply(fakeGetRequest.withBody(testUserCrn))
-
-				status(result) shouldBe NOT_FOUND
-			}
-
-			"BadRequest" in {
-				val result = userController.read.apply(fakeGetRequest.withBody(testBadJson))
-
-				status(result) shouldBe BAD_REQUEST
-			}
-		}
-	}
+        status(result) shouldBe BAD_REQUEST
+      }
+    }
+  }
 }

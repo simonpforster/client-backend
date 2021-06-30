@@ -1,10 +1,9 @@
 package controllers
 
-import models.{Client, ClientRegistration}
+import models.ClientRegistration
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
-import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
+import play.api.mvc.{AbstractController, Action, ControllerComponents}
 import service.RegistrationService
-
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
