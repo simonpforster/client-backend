@@ -24,9 +24,8 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
 ) {
 
   def create(client: Client): Future[Boolean] = collection.insertOne(client).toFuture().map {
-    response => if(response.wasAcknowledged && response.getInsertedId != null) true
-    else false
-  }
+    response => response.wasAcknowledged && !response.getInsertedId.isNull
+  }recover{case _ => false}
 
 	def read(crn: String): Future[Option[Client]] = collection.find(equal("crn", crn)).headOption()
 
@@ -39,8 +38,7 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
 
 	def delete(crn: String): Future[Boolean] =
 			collection.deleteOne(equal("crn", crn)).toFuture().map {
-				response => if(response.wasAcknowledged && response.getDeletedCount == 1) true
-				else false
+				response => response.wasAcknowledged && response.getDeletedCount == 1
 			}
 
 	def addAgent(crn: String, arn: String): Future[(Boolean, Boolean)] =

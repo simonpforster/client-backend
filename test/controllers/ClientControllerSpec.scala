@@ -99,6 +99,12 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
 				contentAsJson(result) shouldBe Json.toJson(List[Client]())
 
 			}
+
+			"BadRequest" in {
+				val result = clientController.readAllAgent.apply(fakeGetRequest.withBody(testBadJson))
+
+				status(result) shouldBe BAD_REQUEST
+			}
 		}
 
 		"addAgent" should {

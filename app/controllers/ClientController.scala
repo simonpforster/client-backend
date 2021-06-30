@@ -41,8 +41,7 @@ class ClientController @Inject()(cc: ControllerComponents,
 			case JsSuccess(value, _) => clientRepository.addAgent(value.crn, value.arn).map{
 				case (true, true) => NoContent
 				case (false, true) => NotFound
-				case (true, false) => Conflict
-				case _ => InternalServerError // impossible
+				case _ => Conflict
 			}
 			case JsError(_) => Future.successful(BadRequest)
 		}
@@ -66,8 +65,7 @@ class ClientController @Inject()(cc: ControllerComponents,
 			case JsSuccess(value, _) => clientRepository.removeAgent(value.crn, value.arn).map {
 				case (true, true) => NoContent
 				case (false, true) => NotFound
-				case (true, false) => Conflict
-				case _ => InternalServerError
+				case _ => Conflict
 			}
 			case JsError(_) => Future.successful(BadRequest)
 		}
