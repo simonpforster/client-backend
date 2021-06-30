@@ -7,6 +7,7 @@
 # Client routes
 PATCH   /addAgent                   controllers.ClientController.addAgent
 GET     /read                       controllers.ClientController.read
+DELETE  /deleteClient               controllers.ClientController.deleteClient
 
 
 # Map static resources from the /public folder to the /assets URL path
