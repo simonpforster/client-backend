@@ -18,8 +18,9 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
   mongoComponent = mongoComponent,
   domainFormat = Client.format,
   indexes = Seq(
-    IndexModel(ascending("crn"), IndexOptions().unique(true)
-    ))
+    IndexModel(ascending("crn"), IndexOptions().unique(true)),
+		IndexModel(ascending("arn"), IndexOptions().unique(false).sparse(true))
+	)
 ) {
 
   def create(client: Client): Future[Boolean] = collection.insertOne(client).toFuture().map {
@@ -27,11 +28,12 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
     else false
   }
 
-	def read(crn: String): Future[Option[Client]] = collection.find(Filters.eq("crn", crn)).headOption()
+	def read(crn: String): Future[Option[Client]] = collection.find(equal("crn", crn)).headOption()
 
   def readAll(): Future[List[Client]] = ???
 
-  def readAllAgent(arn: String): Future[List[Client]] = ???
+  def readAllAgent(arn: String): Future[List[Client]] =
+		collection.find(equal("arn", arn)).toFuture().map{_.toList}
 
   def update(updatedClient: Client): Future[Boolean] = ???
 
@@ -40,7 +42,6 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
 				response => if(response.wasAcknowledged && response.getDeletedCount == 1) true
 				else false
 			}
-
 
 	def addAgent(crn: String, arn: String): Future[(Boolean, Boolean)] =
 		collection.find(equal("crn", crn)).toFuture().flatMap{x => if (x.length == 1) {
