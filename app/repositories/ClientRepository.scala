@@ -49,5 +49,11 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
 			.toFuture().map { response => if (response.wasAcknowledged && response.getModifiedCount == 1) (true, true) else (true, false) }}
 		else Future((false, true))
 	}
-	def removeAgent(crn: String): Future[Boolean] = ???
+	def removeAgent(crn: String, arn: String): Future[(Boolean,Boolean)] =
+		collection.find(equal("crn", crn)).toFuture().flatMap{x => if (x.length == 1) {
+			collection.updateOne(and(equal("crn", crn), equal("arn", arn)), set("arn", None))
+				.toFuture().map { response => if (response.wasAcknowledged && response.getModifiedCount == 1 ) (true, true) else (true, false)}}
+		else Future(false, true)}
 }
+
+

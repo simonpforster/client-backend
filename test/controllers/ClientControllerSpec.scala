@@ -133,6 +133,37 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
 			}
  		}
 
+		"removeAgent" should {
+			"return NoContent" in {
+				when(clientRepository.removeAgent(any(), any())).thenReturn(Future.successful((true, true)))
+
+				val result = clientController.removeAgent.apply(fakePatchRequest.withBody(testBodyCAPair))
+
+				status(result) shouldBe NO_CONTENT
+			}
+
+			"return Not Found" in {
+				when(clientRepository.removeAgent(any(), any())).thenReturn(Future.successful((false, true)))
+
+				val result = clientController.removeAgent.apply(fakePatchRequest.withBody(testBodyCAPair))
+
+				status(result) shouldBe NOT_FOUND
+			}
+
+			"return Conflict" in {
+				when(clientRepository.removeAgent(any(), any())).thenReturn(Future.successful((true, false)))
+
+				val result = clientController.removeAgent.apply(fakePatchRequest.withBody(testBodyCAPair))
+
+				status(result) shouldBe CONFLICT
+			}
+
+			"return BadRequest" in {
+				val result = clientController.removeAgent.apply(fakePatchRequest.withBody(testBadJson))
+
+				status(result) shouldBe BAD_REQUEST
+			}
+		}
 
 		"deleteClient" should{
 
@@ -174,7 +205,5 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
 				}
 			}
 		}
-
 	}
-
 }
