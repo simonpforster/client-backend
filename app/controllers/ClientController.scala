@@ -49,4 +49,5 @@ class ClientController @Inject()(cc: ControllerComponents,
 			}
 			case JsError(_) => Future.successful(BadRequest)
 		}
+	}
 }
