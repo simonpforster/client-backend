@@ -25,7 +25,7 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
 	val testClient = Client("testCrn", "testName", "testBusinessName", "testNumber", 12, "testCode", "testType")
 
 	"ClientRepository" can {
-		"read client" in {
+		"read client" should {
 			"succeed" in {
 				await(repository.create(testClient))
 
@@ -37,6 +37,18 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
 			}
 		}
 
+		"read all agent" should {
+			"succeed" in {
+				val testClientList = List(testClient.copy(arn = Some("testArn")), testClient.copy(crn = "testCrn2", arn = Some("testArn")))
+				testClientList.map(x => await(repository.create(x)))
+
+				await(repository.readAllAgent("testArn")) shouldBe testClientList
+			}
+
+			"empty list" in {
+				await(repository.readAllAgent("testArn")) shouldBe List()
+			}
+		}
 
 		"add agent" should {
 			"succeed" in {
@@ -44,7 +56,7 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
 
 				await(repository.addAgent("testCrn", "testArn")) shouldBe (true, true)
 
-				await(repository.read("testCrn")) shouldBe Some(testClient)
+				await(repository.read("testCrn")) shouldBe Some(testClient.copy(arn = Some("testArn")))
 			}
 
 			"fail because not found" in {

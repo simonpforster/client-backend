@@ -17,8 +17,14 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
 
 	private val testClientAgentPair: ClientAgentPair = ClientAgentPair("testCrn", "testArn")
 	private val testClient: Client = Client("testCrn", "testName", "testBusiness", "testContact", 12, "testPostcode", "testBusinessType", Some("testArn"))
+	private val testClientList = List(testClient, testClient.copy(crn = "testCrn2"))
+
 	private val testClientCrn = Json.obj(
 		"crn" -> "testCrn"
+	)
+
+	private val testArnJson = Json.obj(
+		"arn" -> "testArn"
 	)
 
 	private val testBodyCAPair = Json.obj(
@@ -71,6 +77,27 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
 				val result = clientController.read.apply(fakeGetRequest.withBody(testBadJson))
 
 				status(result) shouldBe BAD_REQUEST
+			}
+		}
+
+		"read all agent" should {
+			"Ok" in {
+				when(clientRepository.readAllAgent(any())).thenReturn(Future.successful(testClientList))
+
+				val result = clientController.readAllAgent.apply(fakeGetRequest.withBody(testArnJson))
+
+				status(result) shouldBe OK
+				contentAsJson(result) shouldBe Json.toJson(testClientList)
+			}
+
+			"Ok empty" in {
+				when(clientRepository.readAllAgent(any())).thenReturn(Future.successful(List()))
+
+				val result = clientController.readAllAgent.apply(fakeGetRequest.withBody(testArnJson))
+
+				status(result) shouldBe OK
+				contentAsJson(result) shouldBe Json.toJson(List[Client]())
+
 			}
 		}
 
