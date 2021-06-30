@@ -1,6 +1,7 @@
 package repositories
 
 import models.User
+import org.mongodb.scala.model.Filters.equal
 import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions}
 import org.mongodb.scala.model.Indexes.ascending
 import uk.gov.hmrc.mongo.MongoComponent
@@ -23,5 +24,8 @@ class UserRepository  @Inject()(mongoComponent: MongoComponent)(implicit ec: Exe
 
 	def read(crn: String): Future[Option[User]] = collection.find(Filters.eq("crn", crn)).headOption()
 
-	def delete(crn: String): Future[Boolean] = ???
+	def delete(crn: String): Future[Boolean] = collection.deleteOne(equal("crn", crn)).toFuture().map {
+		response => if(response.wasAcknowledged && response.getDeletedCount == 1) true
+		else false
+	}
 }

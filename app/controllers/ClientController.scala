@@ -4,7 +4,7 @@ import models.{CRN, ClientAgentPair}
 import play.api.libs.json.Format.GenericFormat
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc._
-import repositories.ClientRepository
+import repositories.{ClientRepository, UserRepository}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -13,7 +13,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 @Singleton
 class ClientController @Inject()(cc: ControllerComponents,
-																 clientRepository: ClientRepository, ec: ExecutionContext)
+																 clientRepository: ClientRepository,
+																 userRepository: UserRepository,
+																 ec: ExecutionContext)
   extends AbstractController(cc) {
 
 	val read: Action[JsValue] = Action.async(parse.json) { implicit request =>
@@ -41,10 +43,13 @@ class ClientController @Inject()(cc: ControllerComponents,
 
 	val deleteClient: Action[JsValue] = Action.async(parse.json) { implicit request =>
 		request.body.validate[CRN] match {
-			case JsSuccess(value, _) => clientRepository.delete(value.crn).map{_ match {
-				case true =>  NoContent
-				case false => NotFound
-			}}
+			case JsSuccess(value, _) => clientRepository.delete(value.crn).flatMap {
+				case true => userRepository.delete(value.crn).map {
+						case true => NoContent
+						case false => NotFound
+				}
+				case false => Future.successful(NotFound)
+			}
 			case JsError(_) => Future.successful(BadRequest)
 		}
 	}

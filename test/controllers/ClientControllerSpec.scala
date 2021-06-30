@@ -9,7 +9,7 @@ import play.api.Play.materializer
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
-import repositories.ClientRepository
+import repositories.{ClientRepository, UserRepository}
 
 import scala.concurrent.Future
 
@@ -40,8 +40,9 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
 	)
 
 	val clientRepository: ClientRepository = mock(classOf[ClientRepository])
+	val userRepository: UserRepository = mock(classOf[UserRepository])
 
-	val clientController: ClientController = new ClientController(Helpers.stubControllerComponents(), clientRepository, Helpers.stubControllerComponents().executionContext)
+	val clientController: ClientController = new ClientController(Helpers.stubControllerComponents(), clientRepository, userRepository, Helpers.stubControllerComponents().executionContext)
 
 	private val fakePatchRequest = FakeRequest("PATCH", "/")
 	private val fakeGetRequest = FakeRequest("GET", "/")
@@ -107,26 +108,43 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
 
 
 		"deleteClient" should{
-			"NoContent" in {
-				when(clientRepository.delete(any())).thenReturn(Future.successful((true)))
 
-				val result = clientController.deleteClient.apply(fakeDeleteRequest.withBody(testClientDeleteJson))
+			"return NoContent" when {
+				"both clientRepository.delete & userRepository.delete returns TRUE " in {
+					when(clientRepository.delete(any())).thenReturn(Future.successful((true)))
+					when(userRepository.delete(any())).thenReturn(Future.successful((true)))
 
-				status(result) shouldBe NO_CONTENT
+					val result = clientController.deleteClient.apply(fakeDeleteRequest.withBody(testClientDeleteJson))
+
+					status(result) shouldBe NO_CONTENT
+				}
 			}
 
-			"NotFound" in {
-				when(clientRepository.delete(any())).thenReturn(Future.successful((false)))
+			"return NotFound" when {
+				"clientRepository.delete FALSE" in {
+					when(clientRepository.delete(any())).thenReturn(Future.successful((false)))
 
-				val result = clientController.deleteClient.apply(fakeDeleteRequest.withBody(testClientDeleteJson))
+					val result = clientController.deleteClient.apply(fakeDeleteRequest.withBody(testClientDeleteJson))
 
-				status(result) shouldBe NOT_FOUND
+					status(result) shouldBe NOT_FOUND
+				}
+
+				"clientRepository.delete TRUE & userRepository.delete FALSE" in {
+					when(clientRepository.delete(any())).thenReturn(Future.successful((true)))
+					when(userRepository.delete(any())).thenReturn(Future.successful((false)))
+
+					val result = clientController.deleteClient.apply(fakeDeleteRequest.withBody(testClientDeleteJson))
+
+					status(result) shouldBe NOT_FOUND
+				}
 			}
 
-			"BadRequest" in {
-				val result = clientController.deleteClient.apply(fakeDeleteRequest.withBody(testClientDeleteBadJson))
+			"return BadRequest" when {
+				"wrong model received" in {
+					val result = clientController.deleteClient.apply(fakeDeleteRequest.withBody(testClientDeleteBadJson))
 
-				status(result) shouldBe BAD_REQUEST
+					status(result) shouldBe BAD_REQUEST
+				}
 			}
 		}
 
