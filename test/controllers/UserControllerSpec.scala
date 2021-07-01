@@ -1,14 +1,14 @@
 package controllers
 
 import helpers.AbstractTest
-import models.{EncryptedPassword, User}
+import models.{EncryptedPassword, User, UserLogin}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{mock, when}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc.{AnyContentAsEmpty, Result}
-import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
+import play.api.test.Helpers.{await, contentAsJson, defaultAwaitTimeout, status}
 import play.api.test.{FakeRequest, Helpers}
 import repositories.UserRepository
 import service.EncryptionService
@@ -62,6 +62,32 @@ class UserControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
         val result: Future[Result] = userController.read.apply(fakeGetRequest.withBody(testBadJson))
 
         status(result) shouldBe BAD_REQUEST
+      }
+    }
+
+    "check matches" should {
+      "succeed" in {
+        when(userRepository.read(any())) thenReturn Future.successful(Some(testUser))
+
+        await(userController.checkMatches(UserLogin("testCrn", "testPass"))) shouldBe true
+      }
+
+      "fail because of wrong password" in {
+        when(userRepository.read(any())) thenReturn Future.successful(Some(testUser))
+
+        await(userController.checkMatches(UserLogin("testCrn", "testBadPass"))) shouldBe false
+      }
+
+      "fail because no user" in {
+        when(userRepository.read(any())) thenReturn Future.successful(None)
+
+        await(userController.checkMatches(UserLogin("testCrn", "testPass"))) shouldBe false
+      }
+
+      "fail because the repository wonky" in {
+        when(userRepository.read(any())) thenReturn Future.successful(Some(testUser))
+
+        await(userController.checkMatches(UserLogin("testMErn", "testPass"))) shouldBe false
       }
     }
   }
