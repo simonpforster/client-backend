@@ -13,6 +13,7 @@ import play.api.test.{FakeRequest, Helpers}
 import repositories.UserRepository
 import service.EncryptionService
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class UserControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
@@ -25,6 +26,14 @@ class UserControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
   val testUser: User = User(
     crn = "testCrn",
     password = ePassword)
+  val testUserLogin: UserLogin = UserLogin(
+    crn = testUser.crn,
+    password = testPass
+  )
+  val wrongUserLogin: UserLogin = UserLogin(
+    crn = "Monkey",
+    password = "do"
+  )
   val testUserJson: JsValue = Json.toJson(testUser)
   val userRepository: UserRepository = mock(classOf[UserRepository])
   val userController: UserController = new UserController(
