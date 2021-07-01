@@ -1,0 +1,43 @@
+Config for coverage & some test tweaks
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Author:    simonpforster <simon.forster98@gmail.com>
+# Date:      Wed Jun 30 14:41:53 2021 +0100
+#
+# On branch user-branch
+# Changes to be committed:
+#	modified:   .DS_Store
+#	modified:   .bsp/sbt.json
+#	modified:   app/controllers/ClientController.scala
+#	modified:   app/controllers/RegistrationController.scala
+#	modified:   app/controllers/UserController.scala
+#	modified:   app/models/CRN.scala
+#	modified:   app/models/Client.scala
+#	modified:   app/models/ClientAgentPair.scala
+#	modified:   app/models/ClientRegistration.scala
+#	modified:   app/models/EncryptedPassword.scala
+#	modified:   app/models/User.scala
+#	new file:   app/models/UserLogin.scala
+#	modified:   app/repositories/ClientRepository.scala
+#	modified:   app/repositories/UserRepository.scala
+#	modified:   app/service/EncryptionService.scala
+#	new file:   app/service/LoginService.scala
+#	modified:   app/service/RegistrationService.scala
+#	modified:   build.sbt
+#	modified:   it/repositories/ClientRepositoryIt.scala
+#	modified:   it/repositories/UserRepositoryIt.scala
+#	modified:   project/plugins.sbt
+#	modified:   test/controllers/ClientControllerSpec.scala
+#	modified:   test/controllers/RegistrationControllerSpec.scala
+#	modified:   test/controllers/UserControllerSpec.scala
+#	modified:   test/models/CRNSpec.scala
+#	modified:   test/models/ClientRegSpec.scala
+#	modified:   test/models/ClientSpec.scala
+#	new file:   test/models/UserLoginSpec.scala
+#	modified:   test/models/UserSpec.scala
+#	modified:   test/services/EncryptionSpec.scala
+#	new file:   test/services/LoginSpec.scala
+#	modified:   test/services/RegistrationSpec.scala
+#

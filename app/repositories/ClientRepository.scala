@@ -1,14 +1,13 @@
 package repositories
 
-import com.mongodb.client.model.Filters.{and, or}
+import com.mongodb.client.model.Filters.and
 import com.mongodb.client.model.Updates.set
 import models.Client
 import org.mongodb.scala.model.Filters.{equal, exists}
 import org.mongodb.scala.model.Indexes.ascending
-import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, UpdateOptions}
+import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
-
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 

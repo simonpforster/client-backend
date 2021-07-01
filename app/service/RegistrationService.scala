@@ -14,6 +14,7 @@ class RegistrationService @Inject()(userRepo: UserRepository, clientRepo: Client
     val secretPass: Array[Byte] = crypto.encrypt(client.password.getBytes(), crypto.getKey, nonce)
     val ePassword: EncryptedPassword = EncryptedPassword(secretPass, nonce)
     val newClient = Client(crn, client.name, client.businessName, client.contactNumber, client.propertyNumber, client.postcode, client.businessType)
+
     for {
       createClient <- clientRepo.create(newClient)
       createUser <- userRepo.create(User(crn, ePassword))
@@ -22,8 +23,9 @@ class RegistrationService @Inject()(userRepo: UserRepository, clientRepo: Client
       case _ => None
     }
   }
+
   def generateCRN(): String = {
-    val id = UUID.randomUUID().toString.replace("-", "")
+    val id: String = UUID.randomUUID().toString.replace("-", "")
     "CRN" + id.substring(id.length() - 8).toUpperCase()
   }
 }

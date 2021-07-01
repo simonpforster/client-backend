@@ -2,11 +2,17 @@ package models
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.{JsSuccess, JsValue, Json}
 
 class ClientRegSpec extends AnyWordSpec with Matchers {
-  val testClientReg: ClientRegistration = ClientRegistration("testName", "testBusiness", "testContact", 12, "testPostcode", "testBusinessType", "testPassword")
+  val testClientReg: ClientRegistration = ClientRegistration(
+    name = "testName",
+    businessName = "testBusiness",
+    contactNumber = "testContact",
+    propertyNumber = 12,
+    postcode = "testPostcode",
+    businessType = "testBusinessType",
+    password = "testPassword")
   val testClientJs: JsValue = Json.parse(
     """{
         "name": "testName",

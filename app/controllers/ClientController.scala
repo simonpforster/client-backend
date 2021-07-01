@@ -5,17 +5,14 @@ import play.api.libs.json.Format.GenericFormat
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc._
 import repositories.{ClientRepository, UserRepository}
-
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
-
+import scala.concurrent.Future
 
 @Singleton
 class ClientController @Inject()(cc: ControllerComponents,
-																 clientRepository: ClientRepository,
-																 userRepository: UserRepository,
-																 ec: ExecutionContext)
+                                 clientRepository: ClientRepository,
+                                 userRepository: UserRepository)
   extends AbstractController(cc) {
 
 	val read: Action[JsValue] = Action.async(parse.json) { implicit request =>
