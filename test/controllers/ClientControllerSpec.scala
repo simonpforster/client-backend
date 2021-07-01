@@ -1,7 +1,7 @@
 package controllers
 
 import helpers.AbstractTest
-import models.{Client, ClientAgentPair}
+import models.Client
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{mock, when}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -11,12 +11,18 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import repositories.{ClientRepository, UserRepository}
 import scala.concurrent.Future
-import org.bson.codecs.configuration.CodecRegistries.fromCodecs
 
 class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
 
-  private val testClientAgentPair: ClientAgentPair = ClientAgentPair("testCrn", "testArn")
-  private val testClient: Client = Client("testCrn", "testName", "testBusiness", "testContact", 12, "testPostcode", "testBusinessType", Some("testArn"))
+  private val testClient: Client = Client(
+    crn = "testCrn",
+    name = "testName",
+    businessName = "testBusiness",
+    contactNumber = "testContact",
+    propertyNumber = 12,
+    postcode = "testPostcode",
+    businessType = "testBusinessType",
+    arn = Some("testArn"))
   private val testClientList = List(testClient, testClient.copy(crn = "testCrn2"))
   private val testClientCrn = Json.obj(
     "crn" -> "testCrn"
@@ -29,14 +35,14 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
     "arn" -> "testArn"
   )
   private val testBadJson = Json.obj(
-    "monkey"-> "do"
+    "monkey" -> "do"
   )
   private val testClientDeleteJson = Json.obj(
-    "crn"-> "RANDOM"
+    "crn" -> "RANDOM"
   )
   private val testClientDeleteBadJson = Json.obj(
     "firstField" -> "fail",
-    "secondField"-> "RANDOM"
+    "secondField" -> "RANDOM"
   )
   val clientRepository: ClientRepository = mock(classOf[ClientRepository])
   val userRepository: UserRepository = mock(classOf[UserRepository])
@@ -48,13 +54,13 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
   "ClientController" can {
     "read" should {
       "Ok" in {
-        when(clientRepository.read(any())).thenReturn(Future.successful(Some(testClient)))
+        when(clientRepository.read(any())) thenReturn Future.successful(Some(testClient))
         val result = clientController.read.apply(fakeGetRequest.withBody(testClientCrn))
         status(result) shouldBe OK
         contentAsJson(result) shouldBe Json.toJson(testClient)
       }
       "NotFound" in {
-        when(clientRepository.read(any())).thenReturn(Future.successful(None))
+        when(clientRepository.read(any())) thenReturn Future.successful(None)
         val result = clientController.read.apply(fakeGetRequest.withBody(testClientCrn))
         status(result) shouldBe NOT_FOUND
       }
@@ -65,13 +71,13 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
     }
     "read all agent" should {
       "Ok" in {
-        when(clientRepository.readAllAgent(any())).thenReturn(Future.successful(testClientList))
+        when(clientRepository.readAllAgent(any())) thenReturn Future.successful(testClientList)
         val result = clientController.readAllAgent.apply(fakeGetRequest.withBody(testArnJson))
         status(result) shouldBe OK
         contentAsJson(result) shouldBe Json.toJson(testClientList)
       }
       "Ok empty" in {
-        when(clientRepository.readAllAgent(any())).thenReturn(Future.successful(List()))
+        when(clientRepository.readAllAgent(any())) thenReturn Future.successful(List())
         val result = clientController.readAllAgent.apply(fakeGetRequest.withBody(testArnJson))
         status(result) shouldBe OK
         contentAsJson(result) shouldBe Json.toJson(List[Client]())
@@ -83,17 +89,19 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
     }
     "addAgent" should {
       "NoContent" in {
-        when(clientRepository.addAgent(any(), any())).thenReturn(Future.successful((true, true)))
+        when(clientRepository.addAgent(any(), any())) thenReturn Future.successful((true, true))
         val result = clientController.addAgent.apply(fakePatchRequest.withBody(testBodyCAPair))
         status(result) shouldBe NO_CONTENT
       }
+
       "Not Found" in {
-        when(clientRepository.addAgent(any(), any())).thenReturn(Future.successful((false, true)))
+        when(clientRepository.addAgent(any(), any())) thenReturn Future.successful((false, true))
         val result = clientController.addAgent.apply(fakePatchRequest.withBody(testBodyCAPair))
         status(result) shouldBe NOT_FOUND
       }
+
       "Conflict" in {
-        when(clientRepository.addAgent(any(), any())).thenReturn(Future.successful((true, false)))
+        when(clientRepository.addAgent(any(), any())) thenReturn Future.successful((true, false))
         val result = clientController.addAgent.apply(fakePatchRequest.withBody(testBodyCAPair))
         status(result) shouldBe CONFLICT
       }
@@ -104,17 +112,17 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
     }
     "removeAgent" should {
       "return NoContent" in {
-        when(clientRepository.removeAgent(any(), any())).thenReturn(Future.successful((true, true)))
+        when(clientRepository.removeAgent(any(), any())) thenReturn Future.successful((true, true))
         val result = clientController.removeAgent.apply(fakePatchRequest.withBody(testBodyCAPair))
         status(result) shouldBe NO_CONTENT
       }
       "return Not Found" in {
-        when(clientRepository.removeAgent(any(), any())).thenReturn(Future.successful((false, true)))
+        when(clientRepository.removeAgent(any(), any())) thenReturn Future.successful((false, true))
         val result = clientController.removeAgent.apply(fakePatchRequest.withBody(testBodyCAPair))
         status(result) shouldBe NOT_FOUND
       }
       "return Conflict" in {
-        when(clientRepository.removeAgent(any(), any())).thenReturn(Future.successful((true, false)))
+        when(clientRepository.removeAgent(any(), any())) thenReturn Future.successful((true, false))
         val result = clientController.removeAgent.apply(fakePatchRequest.withBody(testBodyCAPair))
         status(result) shouldBe CONFLICT
       }
@@ -123,24 +131,24 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
         status(result) shouldBe BAD_REQUEST
       }
     }
-    "deleteClient" should{
+    "deleteClient" should {
       "return NoContent" when {
         "both clientRepository.delete & userRepository.delete returns TRUE " in {
-          when(clientRepository.delete(any())).thenReturn(Future.successful((true)))
-          when(userRepository.delete(any())).thenReturn(Future.successful((true)))
+          when(clientRepository.delete(any())) thenReturn Future.successful(true)
+          when(userRepository.delete(any())) thenReturn Future.successful(true)
           val result = clientController.deleteClient.apply(fakeDeleteRequest.withBody(testClientDeleteJson))
           status(result) shouldBe NO_CONTENT
         }
       }
       "return NotFound" when {
         "clientRepository.delete FALSE" in {
-          when(clientRepository.delete(any())).thenReturn(Future.successful((false)))
+          when(clientRepository.delete(any())) thenReturn Future.successful(false)
           val result = clientController.deleteClient.apply(fakeDeleteRequest.withBody(testClientDeleteJson))
           status(result) shouldBe NOT_FOUND
         }
         "clientRepository.delete TRUE & userRepository.delete FALSE" in {
-          when(clientRepository.delete(any())).thenReturn(Future.successful((true)))
-          when(userRepository.delete(any())).thenReturn(Future.successful((false)))
+          when(clientRepository.delete(any())) thenReturn Future.successful(true)
+          when(userRepository.delete(any())) thenReturn Future.successful(false)
           val result = clientController.deleteClient.apply(fakeDeleteRequest.withBody(testClientDeleteJson))
           status(result) shouldBe NOT_FOUND
         }

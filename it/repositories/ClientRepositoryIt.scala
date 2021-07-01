@@ -12,116 +12,116 @@ import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
-	with DefaultPlayMongoRepositorySupport[Client]
-	with Matchers
-	with ScalaFutures {
+  with DefaultPlayMongoRepositorySupport[Client]
+  with Matchers
+  with ScalaFutures {
 
-	override def repository = new ClientRepository(mongoComponent)
+  override def repository = new ClientRepository(mongoComponent)
 
-	override implicit lazy val app: Application = new GuiceApplicationBuilder()
-		.configure().build()
+  override implicit lazy val app: Application = new GuiceApplicationBuilder()
+    .configure().build()
 
-	val testClient: Client = Client("testCrn", "testName", "testBusinessName", "testNumber", 12, "testCode", "testType")
+  val testClient: Client = Client("testCrn", "testName", "testBusinessName", "testNumber", 12, "testCode", "testType")
 
-	"ClientRepository" can {
+  "ClientRepository" can {
     "create" should {
       "return true" in {
         val result: Boolean = await(repository.create(testClient))
         result shouldBe true
       }
-    	"create" should {
-				"fail if not unique" in {
-					await(repository.create(testClient))
-					val result: Boolean = await(repository.create(testClient))
-					result shouldBe false
-				}
-			}
-		}
+      "create" should {
+        "fail if not unique" in {
+          await(repository.create(testClient))
+          val result: Boolean = await(repository.create(testClient))
+          result shouldBe false
+        }
+      }
+    }
     "read client" should {
-			"succeed" in {
-				await(repository.create(testClient))
+      "succeed" in {
+        await(repository.create(testClient))
 
-				await(repository.read("testCrn")) shouldBe Some(testClient)
-			}
+        await(repository.read("testCrn")) shouldBe Some(testClient)
+      }
 
-			"fail because not found" in {
-				await(repository.read("scasfa")) shouldBe None
-			}
-		}
+      "fail because not found" in {
+        await(repository.read("BadStuffs")) shouldBe None
+      }
+    }
 
-		"read all agent" should {
-			"succeed" in {
-				val testClientList = List(testClient.copy(arn = Some("testArn")), testClient.copy(crn = "testCrn2", arn = Some("testArn")))
-				testClientList.map(x => await(repository.create(x)))
+    "read all agent" should {
+      "succeed" in {
+        val testClientList = List(testClient.copy(arn = Some("testArn")), testClient.copy(crn = "testCrn2", arn = Some("testArn")))
+        testClientList.map(x => await(repository.create(x)))
 
-				await(repository.readAllAgent("testArn")) shouldBe testClientList
-			}
+        await(repository.readAllAgent("testArn")) shouldBe testClientList
+      }
 
-			"empty list" in {
-				await(repository.readAllAgent("testArn")) shouldBe List()
-			}
-		}
+      "empty list" in {
+        await(repository.readAllAgent("testArn")) shouldBe List()
+      }
+    }
 
-		"delete client" should {
-			"succeed" in {
-				await(repository.create(testClient))
+    "delete client" should {
+      "succeed" in {
+        await(repository.create(testClient))
 
-				await(repository.delete(testClient.crn)) shouldBe true
-			}
+        await(repository.delete(testClient.crn)) shouldBe true
+      }
 
-			"fail" in {
-				await(repository.delete(testClient.crn)) shouldBe false
-			}
-		}
+      "fail" in {
+        await(repository.delete(testClient.crn)) shouldBe false
+      }
+    }
 
-		"add agent" should {
-			"succeed" in {
-				await(repository.create(testClient))
+    "add agent" should {
+      "succeed" in {
+        await(repository.create(testClient))
 
-				await(repository.addAgent("testCrn", "testArn")) shouldBe (true, true)
+        await(repository.addAgent("testCrn", "testArn")) shouldBe(true, true)
 
-				await(repository.read("testCrn")) shouldBe Some(testClient.copy(arn = Some("testArn")))
-			}
+        await(repository.read("testCrn")) shouldBe Some(testClient.copy(arn = Some("testArn")))
+      }
 
-			"fail because not found" in {
-				await(repository.create(testClient))
+      "fail because not found" in {
+        await(repository.create(testClient))
 
-				await(repository.addAgent("someCrn", "testArn")) shouldBe (false, true)
-			}
+        await(repository.addAgent("someCrn", "testArn")) shouldBe(false, true)
+      }
 
-			"fail because conflict" in {
-				await(repository.create(testClient.copy(arn = Some("otherArn"))))
+      "fail because conflict" in {
+        await(repository.create(testClient.copy(arn = Some("otherArn"))))
 
-				await(repository.addAgent("testCrn", "testArn")) shouldBe (true, false)
+        await(repository.addAgent("testCrn", "testArn")) shouldBe(true, false)
 
-				await(repository.read("testCrn")) shouldBe Some(testClient.copy(arn = Some("otherArn")))
-			}
-		}
+        await(repository.read("testCrn")) shouldBe Some(testClient.copy(arn = Some("otherArn")))
+      }
+    }
 
-		"remove agent" should {
-			"succeed" in {
-				await(repository.create(testClient.copy(arn = Some("testArn"))))
+    "remove agent" should {
+      "succeed" in {
+        await(repository.create(testClient.copy(arn = Some("testArn"))))
 
-				await(repository.removeAgent("testCrn", "testArn")) shouldBe (true, true)
+        await(repository.removeAgent("testCrn", "testArn")) shouldBe(true, true)
 
-				await(repository.read("testCrn")) shouldBe Some(testClient)
-			}
+        await(repository.read("testCrn")) shouldBe Some(testClient)
+      }
 
-			"fail because not found" in {
-				await(repository.create(testClient.copy(arn = Some("testArn"))))
+      "fail because not found" in {
+        await(repository.create(testClient.copy(arn = Some("testArn"))))
 
-				await(repository.removeAgent("testBadCrn", "testArn")) shouldBe (false, true)
+        await(repository.removeAgent("testBadCrn", "testArn")) shouldBe(false, true)
 
-				await(repository.read("testCrn")) shouldBe Some(testClient.copy(arn = Some("testArn")))
-			}
+        await(repository.read("testCrn")) shouldBe Some(testClient.copy(arn = Some("testArn")))
+      }
 
-			"fail because of conflict" in {
-				await(repository.create(testClient))
+      "fail because of conflict" in {
+        await(repository.create(testClient))
 
-				await(repository.removeAgent("testCrn", "testArn")) shouldBe (true, false)
+        await(repository.removeAgent("testCrn", "testArn")) shouldBe(true, false)
 
-				await(repository.read("testCrn")) shouldBe Some(testClient)
-			}
-		}
-	}
+        await(repository.read("testCrn")) shouldBe Some(testClient)
+      }
+    }
+  }
 }

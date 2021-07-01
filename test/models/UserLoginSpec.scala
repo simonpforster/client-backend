@@ -1,7 +1,7 @@
 package models
 
 import helpers.AbstractTest
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.{JsObject, Json}
 
 class UserLoginSpec extends AbstractTest {
   val userLogin: UserLogin = UserLogin(

@@ -10,7 +10,6 @@ import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
 import play.api.test.{FakeRequest, Helpers}
 import service.RegistrationService
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 

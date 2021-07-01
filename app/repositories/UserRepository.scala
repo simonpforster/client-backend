@@ -15,11 +15,10 @@ class UserRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
   domainFormat = User.format,
   indexes = Seq(
     IndexModel(ascending("crn"), IndexOptions().unique(true)
-    ))
-) {
+    ))) {
   def create(user: User): Future[Boolean] = collection.insertOne(user).toFuture().map {
     response => response.wasAcknowledged && response.getInsertedId != null
-  } recover {case _ => false}
+  } recover { case _ => false }
 
   def read(crn: String): Future[Option[User]] = collection.find(Filters.eq("crn", crn)).headOption()
 
