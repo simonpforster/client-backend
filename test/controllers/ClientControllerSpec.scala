@@ -11,6 +11,7 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import repositories.{ClientRepository, UserRepository}
 import scala.concurrent.Future
+import org.bson.codecs.configuration.CodecRegistries.fromCodecs
 
 class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
 
