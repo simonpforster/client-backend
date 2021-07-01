@@ -13,6 +13,7 @@ import repositories.{ClientRepository, UserRepository}
 import scala.concurrent.Future
 
 class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
+
   private val testClientAgentPair: ClientAgentPair = ClientAgentPair("testCrn", "testArn")
   private val testClient: Client = Client("testCrn", "testName", "testBusiness", "testContact", 12, "testPostcode", "testBusinessType", Some("testArn"))
   private val testClientList = List(testClient, testClient.copy(crn = "testCrn2"))
@@ -152,3 +153,4 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
     }
   }
 }
+
