@@ -20,7 +20,6 @@ class RegistrationController @Inject()(cc: ControllerComponents,
           case _ => Unauthorized
         }
       case JsError(_) => Future(BadRequest)
-
     }
   }
 }

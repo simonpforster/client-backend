@@ -5,10 +5,9 @@ import com.mongodb.client.model.Updates.{set, unset}
 import models.Client
 import org.mongodb.scala.model.Filters.{equal, exists}
 import org.mongodb.scala.model.Indexes.ascending
-import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions}
+import org.mongodb.scala.model.{IndexModel, IndexOptions}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
-
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -19,35 +18,42 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
   domainFormat = Client.format,
   indexes = Seq(
     IndexModel(ascending("crn"), IndexOptions().unique(true)),
-		IndexModel(ascending("arn"), IndexOptions().unique(false).sparse(true))
-	)
-) {
+    IndexModel(ascending("arn"), IndexOptions().unique(false).sparse(true))
+  )) {
 
   def create(client: Client): Future[Boolean] = collection.insertOne(client).toFuture().map {
     response => response.wasAcknowledged && !response.getInsertedId.isNull
-  }recover{case _ => false}
+  } recover { case _ => false }
 
-	def read(crn: String): Future[Option[Client]] = collection.find(equal("crn", crn)).headOption()
+  def read(crn: String): Future[Option[Client]] = collection.find(equal("crn", crn)).headOption()
 
   def readAllAgent(arn: String): Future[List[Client]] =
-		collection.find(equal("arn", arn)).toFuture().map{_.toList}
+    collection.find(equal("arn", arn)).toFuture().map {
+      _.toList
+    }
 
-	def delete(crn: String): Future[Boolean] =
-			collection.deleteOne(equal("crn", crn)).toFuture().map {
-				response => response.wasAcknowledged && response.getDeletedCount == 1
-			}
+  def delete(crn: String): Future[Boolean] =
+    collection.deleteOne(equal("crn", crn)).toFuture().map {
+      response => response.wasAcknowledged && response.getDeletedCount == 1
+    }
 
-	def addAgent(crn: String, arn: String): Future[(Boolean, Boolean)] =
-		collection.find(equal("crn", crn)).toFuture().flatMap{x => if (x.length == 1) {
-			collection.updateOne(and(equal("crn", crn), exists("arn", false)), set("arn", arn))
-			.toFuture().map { response => if (response.wasAcknowledged && response.getModifiedCount == 1) (true, true) else (true, false) }}
-		else Future((false, true))
-	}
-	def removeAgent(crn: String, arn: String): Future[(Boolean,Boolean)] =
-		collection.find(equal("crn", crn)).toFuture().flatMap{x => if (x.length == 1) {
-			collection.updateOne(and(equal("crn", crn), equal("arn", arn)), unset("arn"))
-				.toFuture().map { response => if (response.wasAcknowledged && response.getModifiedCount == 1 ) (true, true) else (true, false)}}
-		else Future(false, true)}
+  def addAgent(crn: String, arn: String): Future[(Boolean, Boolean)] =
+    collection.find(equal("crn", crn)).toFuture().flatMap { x =>
+      if (x.length == 1) {
+        collection.updateOne(and(equal("crn", crn), exists("arn", exists = false)), set("arn", arn))
+          .toFuture().map { response => if (response.wasAcknowledged && response.getModifiedCount == 1) (true, true) else (true, false) }
+      }
+      else Future((false, true))
+    }
+
+  def removeAgent(crn: String, arn: String): Future[(Boolean, Boolean)] =
+    collection.find(equal("crn", crn)).toFuture().flatMap { x =>
+      if (x.length == 1) {
+        collection.updateOne(and(equal("crn", crn), equal("arn", arn)), unset("arn"))
+          .toFuture().map { response => if (response.wasAcknowledged && response.getModifiedCount == 1) (true, true) else (true, false) }
+      }
+      else Future(false, true)
+    }
 }
 
 

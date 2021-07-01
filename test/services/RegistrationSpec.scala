@@ -8,7 +8,6 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import repositories.{ClientRepository, UserRepository}
 import service.{EncryptionService, RegistrationService}
-
 import scala.concurrent.Future
 
 class RegistrationSpec extends AbstractTest with GuiceOneAppPerSuite {

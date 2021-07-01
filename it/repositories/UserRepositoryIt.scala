@@ -60,7 +60,7 @@ class UserRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
       }
 
       "fail because of not found" in {
-        await(repository.read("adadfss")) shouldBe None
+        await(repository.read("BadStuff")) shouldBe None
       }
     }
   }

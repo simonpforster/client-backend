@@ -12,8 +12,6 @@ import play.api.test.Helpers.{await, contentAsJson, defaultAwaitTimeout, status}
 import play.api.test.{FakeRequest, Helpers}
 import repositories.UserRepository
 import service.EncryptionService
-
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class UserControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
@@ -40,8 +38,6 @@ class UserControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
     cc = Helpers.stubControllerComponents(),
     userRepository = userRepository,
     crypto = crypto)
-  //may be needed in future
-  //val fakePatchRequest = FakeRequest("PATCH", "/")
   val fakeGetRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(method = "GET", path = "/")
   val testUserCrn: JsObject = Json.obj(
     "crn" -> "testCrn"

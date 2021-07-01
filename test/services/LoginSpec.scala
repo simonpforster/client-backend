@@ -1,6 +1,5 @@
 package services
 
-import akka.http.scaladsl.model.HttpHeader.ParsingResult.Ok
 import controllers.UserController
 import helpers.AbstractTest
 import models.{Client, EncryptedPassword, User, UserLogin}
@@ -13,7 +12,6 @@ import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
 import play.api.test.{FakeRequest, Helpers}
 import repositories.{ClientRepository, UserRepository}
 import service.{EncryptionService, LoginService}
-
 import scala.concurrent.Future
 
 class LoginSpec extends AbstractTest with GuiceOneAppPerSuite {

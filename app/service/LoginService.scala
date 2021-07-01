@@ -5,7 +5,6 @@ import models.UserLogin
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc.{AbstractController, Action, ControllerComponents}
 import repositories.ClientRepository
-
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
