@@ -1,13 +1,14 @@
 package repositories
 
 import com.mongodb.client.model.Filters.and
-import com.mongodb.client.model.Updates.set
+import com.mongodb.client.model.Updates.{set, unset}
 import models.Client
 import org.mongodb.scala.model.Filters.{equal, exists}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -28,12 +29,8 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
 
 	def read(crn: String): Future[Option[Client]] = collection.find(equal("crn", crn)).headOption()
 
-  def readAll(): Future[List[Client]] = ???
-
   def readAllAgent(arn: String): Future[List[Client]] =
 		collection.find(equal("arn", arn)).toFuture().map{_.toList}
-
-  def update(updatedClient: Client): Future[Boolean] = ???
 
 	def delete(crn: String): Future[Boolean] =
 			collection.deleteOne(equal("crn", crn)).toFuture().map {
@@ -48,7 +45,7 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
 	}
 	def removeAgent(crn: String, arn: String): Future[(Boolean,Boolean)] =
 		collection.find(equal("crn", crn)).toFuture().flatMap{x => if (x.length == 1) {
-			collection.updateOne(and(equal("crn", crn), equal("arn", arn)), set("arn", None))
+			collection.updateOne(and(equal("crn", crn), equal("arn", arn)), unset("arn"))
 				.toFuture().map { response => if (response.wasAcknowledged && response.getModifiedCount == 1 ) (true, true) else (true, false)}}
 		else Future(false, true)}
 }

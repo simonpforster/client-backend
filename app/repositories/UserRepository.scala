@@ -18,18 +18,12 @@ class UserRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
     ))
 ) {
   def create(user: User): Future[Boolean] = collection.insertOne(user).toFuture().map {
-    response =>
-      if (response.wasAcknowledged && response.getInsertedId != null) true
-      else false
-  }
-
-  def login(user: User): Future[Boolean] = ???
+    response => response.wasAcknowledged && response.getInsertedId != null
+  } recover {case _ => false}
 
   def read(crn: String): Future[Option[User]] = collection.find(Filters.eq("crn", crn)).headOption()
 
   def delete(crn: String): Future[Boolean] = collection.deleteOne(equal("crn", crn)).toFuture().map {
-    response =>
-      if (response.wasAcknowledged && response.getDeletedCount == 1) true
-      else false
+    response => response.wasAcknowledged && response.getDeletedCount == 1
   }
 }

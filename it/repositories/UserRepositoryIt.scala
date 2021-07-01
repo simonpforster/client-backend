@@ -33,24 +33,47 @@ class UserRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
     crn = "testCrn",
     password = ePassword)
 
+  def equalsTestUser(user: User): Boolean = {
+    user.crn == testUser.crn && crypto.decrypt(user.password.ePassword, crypto.getKey, user.password.nonce) == "testPass"
+  }
+
   "UserRepository" can {
     "create" should {
       "return true" in {
-        val result: Boolean = await(repository.create(testUser))
-        result shouldBe true
+        await(repository.create(testUser)) shouldBe true
+        equalsTestUser(await(repository.read(testUser.crn)).get) shouldBe true
+      }
+
+      "fail because conflict" in {
+        await(repository.create(testUser))
+        await(repository.create(testUser)) shouldBe false
       }
     }
+
+
     "read" should {
       "succeed" in {
         await(repository.create(testUser))
 
-        val something: User = await(repository.read("testCrn")).get
-        something.crn shouldBe testUser.crn
-        crypto.decrypt(something.password.ePassword, crypto.getKey, something.password.nonce) shouldBe "testPass"
+        val user: User = await(repository.read("testCrn")).get
+        equalsTestUser(user) shouldBe true
       }
+
       "fail because of not found" in {
         await(repository.read("adadfss")) shouldBe None
       }
+    }
+  }
+
+  "delete" should {
+    "succeed" in {
+      await(repository.create(testUser))
+
+      await(repository.delete(testUser.crn)) shouldBe true
+    }
+
+    "fail because not found" in {
+      await(repository.delete(testUser.crn)) shouldBe false
     }
   }
 }

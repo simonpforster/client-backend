@@ -73,26 +73,30 @@ class UserControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
         status(result) shouldBe BAD_REQUEST
       }
     }
-    "checkMatches" should {
-      "return true if crn and password match" in {
+
+    "check matches" should {
+      "succeed" in {
         when(userRepository.read(any())) thenReturn Future.successful(Some(testUser))
 
-        val result = userController.checkMatches(testUserLogin)
-
-        await(result) shouldBe true
+        await(userController.checkMatches(UserLogin("testCrn", "testPass"))) shouldBe true
       }
-      "return false if no match" in {
+
+      "fail because of wrong password" in {
         when(userRepository.read(any())) thenReturn Future.successful(Some(testUser))
 
-        val result = userController.checkMatches(wrongUserLogin)
-
-        await(result) shouldBe false
+        await(userController.checkMatches(UserLogin("testCrn", "testBadPass"))) shouldBe false
       }
-      "return false if user does not exist" in {
+
+      "fail because no user" in {
         when(userRepository.read(any())) thenReturn Future.successful(None)
-        val result = userController.checkMatches(testUserLogin)
 
-        await(result) shouldBe false
+        await(userController.checkMatches(UserLogin("testCrn", "testPass"))) shouldBe false
+      }
+
+      "fail because the repository wonky" in {
+        when(userRepository.read(any())) thenReturn Future.successful(Some(testUser))
+
+        await(userController.checkMatches(UserLogin("testMErn", "testPass"))) shouldBe false
       }
     }
   }

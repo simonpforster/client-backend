@@ -62,6 +62,18 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
 			}
 		}
 
+		"delete client" should {
+			"succeed" in {
+				await(repository.create(testClient))
+
+				await(repository.delete(testClient.crn)) shouldBe true
+			}
+
+			"fail" in {
+				await(repository.delete(testClient.crn)) shouldBe false
+			}
+		}
+
 		"add agent" should {
 			"succeed" in {
 				await(repository.create(testClient))
@@ -83,6 +95,32 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
 				await(repository.addAgent("testCrn", "testArn")) shouldBe (true, false)
 
 				await(repository.read("testCrn")) shouldBe Some(testClient.copy(arn = Some("otherArn")))
+			}
+		}
+
+		"remove agent" should {
+			"succeed" in {
+				await(repository.create(testClient.copy(arn = Some("testArn"))))
+
+				await(repository.removeAgent("testCrn", "testArn")) shouldBe (true, true)
+
+				await(repository.read("testCrn")) shouldBe Some(testClient)
+			}
+
+			"fail because not found" in {
+				await(repository.create(testClient.copy(arn = Some("testArn"))))
+
+				await(repository.removeAgent("testBadCrn", "testArn")) shouldBe (false, true)
+
+				await(repository.read("testCrn")) shouldBe Some(testClient.copy(arn = Some("testArn")))
+			}
+
+			"fail because of conflict" in {
+				await(repository.create(testClient))
+
+				await(repository.removeAgent("testCrn", "testArn")) shouldBe (true, false)
+
+				await(repository.read("testCrn")) shouldBe Some(testClient)
 			}
 		}
 	}

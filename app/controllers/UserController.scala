@@ -25,6 +25,7 @@ class UserController @Inject()(cc: ControllerComponents,
       case JsError(_) => Future(BadRequest)
     }
   }
+
   def checkMatches(requestedUser: UserLogin): Future[Boolean] = {
     userRepository.read(requestedUser.crn).map {
       case Some(user) => if(user.crn == requestedUser.crn) {
