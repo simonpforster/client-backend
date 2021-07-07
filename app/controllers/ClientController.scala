@@ -1,10 +1,11 @@
 package controllers
 
-import models.{ARN, CRN, ClientAgentPair}
+import models.{ARN, CRN, Client, ClientAgentPair}
 import play.api.libs.json.Format.GenericFormat
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc._
 import repositories.{ClientRepository, UserRepository}
+
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -65,6 +66,14 @@ class ClientController @Inject()(cc: ControllerComponents,
         case _ => Conflict
       }
       case JsError(_) => Future.successful(BadRequest)
+    }
+  }
+
+  val update: Action[JsValue] = Action.async(parse.json) { implicit request =>
+    request.body.validate[Client] match {
+      case JsSuccess(client, _) =>
+        clientRepository.update(client).map(_ => Created)
+      case JsError(_) => Future(BadRequest)
     }
   }
 }

@@ -21,7 +21,18 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .configure().build()
 
-  val testClient: Client = Client("testCrn", "testName", "testBusinessName", "testNumber", 12, "testCode", "testType")
+  val testClient: Client = Client(
+    crn = "testCrn",
+    name = "testName",
+    businessName = "testBusinessName",
+    contactNumber = "testNumber",
+    propertyNumber = 12,
+    postcode = "testCode",
+    businessType = "testType")
+  val testClientWithARN: Client = testClient.copy(arn = Some("arnTest"))
+  val updatedClient: Client = testClient.copy(name = "newTestName")
+  val updatedClientWithARN: Client = testClient.copy(name = "newTestName", arn = Some("arnTest"))
+  val badClient: Client = testClient.copy(crn = "WrongCrn")
 
   "ClientRepository" can {
     "create" should {
@@ -121,6 +132,29 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
         await(repository.removeAgent("testCrn", "testArn")) shouldBe(true, false)
 
         await(repository.read("testCrn")) shouldBe Some(testClient)
+      }
+      "update" should {
+        "succeed without arn" in {
+          await(repository.create(testClient))
+
+          await(repository.update(updatedClient))
+
+          await(repository.read(testClient.crn)) shouldBe Some(updatedClient)
+        }
+        "succeed with arn" in {
+          await(repository.create(testClientWithARN))
+
+          await(repository.update(updatedClient)) shouldBe true
+
+          await(repository.read(testClient.crn)) shouldBe Some(updatedClientWithARN)
+        }
+        "fail with arn when incorrect details added" in {
+          await(repository.create(testClient))
+
+          await(repository.update(badClient)) shouldBe false
+
+          await(repository.read(testClient.crn)) shouldBe Some(testClient)
+        }
       }
     }
   }
