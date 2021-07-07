@@ -1,13 +1,14 @@
 package repositories
 
 import com.mongodb.client.model.Filters.and
-import com.mongodb.client.model.Updates.{set, unset}
+import com.mongodb.client.model.Updates.{combine, set, unset}
 import models.Client
 import org.mongodb.scala.model.Filters.{equal, exists}
 import org.mongodb.scala.model.Indexes.ascending
-import org.mongodb.scala.model.{IndexModel, IndexOptions}
+import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -54,6 +55,20 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
       }
       else Future(false, true)
     }
+
+  def update(client: Client): Future[Boolean] = {
+    collection.updateOne(
+      Filters.equal("crn", client.crn),
+      combine(
+        set("crn", client.crn),
+        set("name", client.name),
+        set("businessName", client.businessName),
+        set("contactNumber", client.contactNumber),
+        set("propertyNumber", client.propertyNumber),
+        set("postcode", client.postcode),
+        set("businessType", client.businessType)))
+      .toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged()).recover { case _ => false }
+  }
 }
 
 
