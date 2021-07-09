@@ -67,7 +67,7 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
         set("propertyNumber", client.propertyNumber),
         set("postcode", client.postcode),
         set("businessType", client.businessType)))
-      .toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged()).recover { case _ => false }
+      .toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged())
   }
 }
 
