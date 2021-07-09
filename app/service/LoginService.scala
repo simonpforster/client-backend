@@ -22,6 +22,7 @@ class LoginService @Inject()(cc: ControllerComponents,
           case true =>
             clientRepo.read(user.crn).map {
               case Some(client) => Ok(Json.toJson(client))
+              case None => NotFound
             }
           case false => Future(Unauthorized)
         }

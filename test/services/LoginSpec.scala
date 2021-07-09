@@ -6,12 +6,14 @@ import models.{Client, EncryptedPassword, User, UserLogin}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{mock, when}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.http.Status._
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
 import play.api.test.{FakeRequest, Helpers}
 import repositories.{ClientRepository, UserRepository}
 import service.{EncryptionService, LoginService}
+
 import scala.concurrent.Future
 
 class LoginSpec extends AbstractTest with GuiceOneAppPerSuite {
@@ -54,18 +56,25 @@ class LoginSpec extends AbstractTest with GuiceOneAppPerSuite {
         when(userController.checkMatches(any())) thenReturn Future.successful(true)
         when(clientRepo.read(any())) thenReturn Future.successful(Some(client))
         val result: Future[Result] = service.login.apply(fakePostRequest.withBody(userLoginJson))
-        status(result) shouldBe 200
+        status(result) shouldBe OK
         contentAsJson(result) shouldBe Json.toJson(client)
       }
       "return Unauthorised if passwords do not match" in {
         when(userController.checkMatches(any())) thenReturn Future.successful(false)
         when(clientRepo.read(any())) thenReturn Future.successful(None)
         val result: Future[Result] = service.login.apply(fakePostRequest.withBody(userLoginJson))
-        status(result) shouldBe 401
+        status(result) shouldBe UNAUTHORIZED
       }
       "return a bad request if json is incorrect" in {
         val result: Future[Result] = service.login.apply(fakePostRequest.withBody(badJson))
-        status(result) shouldBe 400
+        status(result) shouldBe BAD_REQUEST
+      }
+
+      "return not found if client is not in collection but user is" in {
+        when(userController.checkMatches(any())) thenReturn Future.successful(true)
+        when(clientRepo.read(any())) thenReturn Future.successful(None)
+        val result: Future[Result] = service.login.apply(fakePostRequest.withBody(userLoginJson))
+        status(result) shouldBe NOT_FOUND
       }
     }
   }
