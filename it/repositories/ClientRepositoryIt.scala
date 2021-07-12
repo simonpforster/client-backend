@@ -26,7 +26,7 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
     name = "testName",
     businessName = "testBusinessName",
     contactNumber = "testNumber",
-    propertyNumber = 12,
+    propertyNumber = "12",
     postcode = "testCode",
     businessType = "testType")
   val testClientWithARN: Client = testClient.copy(arn = Some("arnTest"))
