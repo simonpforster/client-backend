@@ -5,7 +5,7 @@ import play.api.libs.json.{Json, OFormat}
 case class ClientRegistration(name: String,
                               businessName: String,
                               contactNumber: String,
-                              propertyNumber: Int,
+                              propertyNumber: String,
                               postcode: String,
                               businessType: String,
                               password: String)
