@@ -9,7 +9,7 @@ class ClientRegSpec extends AnyWordSpec with Matchers {
     name = "testName",
     businessName = "testBusiness",
     contactNumber = "testContact",
-    propertyNumber = 12,
+    propertyNumber = "12",
     postcode = "testPostcode",
     businessType = "testBusinessType",
     password = "testPassword")
@@ -18,7 +18,7 @@ class ClientRegSpec extends AnyWordSpec with Matchers {
         "name": "testName",
 				"businessName": "testBusiness",
 				"contactNumber": "testContact",
-				"propertyNumber": 12,
+				"propertyNumber": "12",
 				"postcode": "testPostcode",
 				"businessType": "testBusinessType",
         "password": "testPassword"

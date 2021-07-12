@@ -44,7 +44,7 @@ class LoginSpec extends AbstractTest with GuiceOneAppPerSuite {
     name = "testName",
     businessName = "testBusiness",
     contactNumber = "testContact",
-    propertyNumber = 12,
+    propertyNumber = "12",
     postcode = "testPostcode",
     businessType = "testBusinessType")
   val badJson: JsObject = Json.obj(
