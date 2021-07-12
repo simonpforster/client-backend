@@ -1,7 +1,7 @@
 package controllers
 
 import helpers.AbstractTest
-import models.Client
+import models.{Client, NameUpdateDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{mock, when}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -29,6 +29,7 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
   private val testClientCrn = Json.obj(
     "crn" -> "testCrn"
   )
+  private val testNameUpdateDetails = NameUpdateDetails(testClient.crn, "newName")
   private val testArnJson = Json.obj(
     "arn" -> "testArn"
   )
@@ -172,15 +173,19 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
           status(result) shouldBe BAD_REQUEST
         }
       }
-
       "update" should {
-        "return Created with update success" in {
-          when(clientRepository.update(any())) thenReturn Future.successful(true)
-          val result = clientController.update.apply(fakePutRequest.withBody(Json.toJson(testClient)))
-          status(result) shouldBe CREATED
+        "return NoContent with update success" in {
+          when(clientRepository.updateName(any())) thenReturn Future.successful(true)
+          val result = clientController.updateName.apply(fakePatchRequest.withBody(Json.toJson(testNameUpdateDetails)))
+          status(result) shouldBe NO_CONTENT
         }
-        "return BadRequest with Js Error" in {
-          val result = clientController.update.apply(fakePutRequest.withBody(testBadJson))
+        "return NotFound with update unsuccessful" in {
+          when(clientRepository.updateName(any())) thenReturn Future.successful(false)
+          val result = clientController.updateName.apply(fakePatchRequest.withBody(Json.toJson(testNameUpdateDetails)))
+          status(result) shouldBe NOT_FOUND
+        }
+        "return a BadRequest with Js Error" in {
+          val result = clientController.updateName.apply(fakePatchRequest.withBody(testBadJson))
           status(result) shouldBe BAD_REQUEST
         }
       }

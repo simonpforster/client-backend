@@ -9,7 +9,7 @@ GET     /read                    controllers.ClientController.read
 POST    /register                controllers.RegistrationController.register
 DELETE  /delete-client           controllers.ClientController.deleteClient
 POST    /login                   service.LoginService.login
-PUT     /update-client           controllers.ClientController.update
+PATCH   /update-name             controllers.ClientController.updateName
 
 # Agent routes
 PATCH   /add-agent               controllers.ClientController.addAgent

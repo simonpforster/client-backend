@@ -19,7 +19,7 @@ class ClientRegSpec extends AnyWordSpec with Matchers {
         "${DBKeys.name}": "${testClientReg.name}",
 				"${DBKeys.businessName}": "${testClientReg.businessName}",
 				"${DBKeys.contactNumber}": "${testClientReg.contactNumber}",
-				"${DBKeys.propertyNumber}": ${testClientReg.propertyNumber},
+				"${DBKeys.propertyNumber}": "${testClientReg.propertyNumber}",
 				"${DBKeys.postcode}": "${testClientReg.postcode}",
 				"${DBKeys.businessType}": "${testClientReg.businessType}",
         "${DBKeys.password}": "${testClientReg.password}"
