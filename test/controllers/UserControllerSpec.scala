@@ -17,7 +17,8 @@ import scala.concurrent.Future
 class UserControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
   val crypto: EncryptionService = app.injector.instanceOf[EncryptionService]
   val nonce: Array[Byte] = crypto.getNonce
-  val testPass = "testPass"
+  val testPass: String = "testPass"
+  val badString: String = "badString"
   val ePassword = new EncryptedPassword(
     ePassword = crypto.encrypt(testPass.getBytes, crypto.getKey, nonce),
     nonce = nonce)
@@ -74,25 +75,25 @@ class UserControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
       "succeed" in {
         when(userRepository.read(any())) thenReturn Future.successful(Some(testUser))
 
-        await(userController.checkMatches(UserLogin("testCrn", "testPass"))) shouldBe true
+        await(userController.checkMatches(UserLogin(testUser.crn,testPass))) shouldBe true
       }
 
       "fail because of wrong password" in {
         when(userRepository.read(any())) thenReturn Future.successful(Some(testUser))
 
-        await(userController.checkMatches(UserLogin("testCrn", "testBadPass"))) shouldBe false
+        await(userController.checkMatches(UserLogin(testUser.crn, badString))) shouldBe false
       }
 
       "fail because no user" in {
         when(userRepository.read(any())) thenReturn Future.successful(None)
 
-        await(userController.checkMatches(UserLogin("testCrn", "testPass"))) shouldBe false
+        await(userController.checkMatches(UserLogin(testUser.crn, testPass))) shouldBe false
       }
 
       "fail because the repository wonky" in {
         when(userRepository.read(any())) thenReturn Future.successful(Some(testUser))
 
-        await(userController.checkMatches(UserLogin("testMErn", "testPass"))) shouldBe false
+        await(userController.checkMatches(UserLogin(badString, testPass))) shouldBe false
       }
     }
   }

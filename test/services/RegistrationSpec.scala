@@ -12,6 +12,7 @@ import scala.concurrent.Future
 
 class RegistrationSpec extends AbstractTest with GuiceOneAppPerSuite {
   val testCRN: String = "CRNTEST"
+  val crnBeginning: String = "CRN"
   val userRepo: UserRepository = mock(classOf[UserRepository])
   val clientRepo: ClientRepository = mock(classOf[ClientRepository])
   val crypto: EncryptionService = app.injector.instanceOf[EncryptionService]
@@ -55,7 +56,7 @@ class RegistrationSpec extends AbstractTest with GuiceOneAppPerSuite {
       "Return a string" in {
         val myCRN: String = service.generateCRN()
         myCRN should include
-        "CRN"
+        crnBeginning
       }
     }
   }

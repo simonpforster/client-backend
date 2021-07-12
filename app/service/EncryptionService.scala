@@ -12,10 +12,14 @@ class EncryptionService @Inject()(configuration: play.api.Configuration)() {
   val GCM_IV_LENGTH: Int = 12
   val GCM_TAG_LENGTH: Int = 16
 
+  val configString: String = "play.http.secret.key"
+  val algorithm: String = "AES"
+  val transformation: String = "AES/GCM/NoPadding"
+
   def getKey: SecretKeySpec = {
-    val appKeyString: String = configuration.underlying.getString("play.http.secret.key")
+    val appKeyString: String = configuration.underlying.getString(configString)
     val decodedString: Array[Byte] = Base64.getDecoder.decode(appKeyString)
-    val originalKey: SecretKeySpec = new SecretKeySpec(decodedString, 0, decodedString.length, "AES")
+    val originalKey: SecretKeySpec = new SecretKeySpec(decodedString, 0, decodedString.length, algorithm)
     originalKey
   }
 
@@ -27,8 +31,8 @@ class EncryptionService @Inject()(configuration: play.api.Configuration)() {
   }
 
   def encrypt(plainText: Array[Byte], key: SecretKey, nonce: Array[Byte]): Array[Byte] = {
-    val cipher: Cipher = Cipher.getInstance("AES/GCM/NoPadding")
-    val keySpec: SecretKeySpec = new SecretKeySpec(key.getEncoded, "AES")
+    val cipher: Cipher = Cipher.getInstance(transformation)
+    val keySpec: SecretKeySpec = new SecretKeySpec(key.getEncoded, algorithm)
     val gcmParameterSpec: GCMParameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, nonce)
     cipher.init(Cipher.ENCRYPT_MODE, keySpec, gcmParameterSpec)
     val cipherText: Array[Byte] = cipher.doFinal(plainText)
@@ -36,8 +40,8 @@ class EncryptionService @Inject()(configuration: play.api.Configuration)() {
   }
 
   def decrypt(cipherText: Array[Byte], key: SecretKey, nonce: Array[Byte]): String = {
-    val cipher: Cipher = Cipher.getInstance("AES/GCM/NoPadding")
-    val keySpec: SecretKeySpec = new SecretKeySpec(key.getEncoded, "AES")
+    val cipher: Cipher = Cipher.getInstance(transformation)
+    val keySpec: SecretKeySpec = new SecretKeySpec(key.getEncoded, algorithm)
     val gcmParameterSpec: GCMParameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, nonce)
     cipher.init(Cipher.DECRYPT_MODE, keySpec, gcmParameterSpec)
     val decrypted: Array[Byte] = cipher.doFinal(cipherText)

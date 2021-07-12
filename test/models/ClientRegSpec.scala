@@ -1,5 +1,6 @@
 package models
 
+import common.DBKeys
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.{JsSuccess, JsValue, Json}
@@ -14,14 +15,14 @@ class ClientRegSpec extends AnyWordSpec with Matchers {
     businessType = "testBusinessType",
     password = "testPassword")
   val testClientJs: JsValue = Json.parse(
-    """{
-        "name": "testName",
-				"businessName": "testBusiness",
-				"contactNumber": "testContact",
-				"propertyNumber": 12,
-				"postcode": "testPostcode",
-				"businessType": "testBusinessType",
-        "password": "testPassword"
+    s"""{
+        "${DBKeys.name}": "${testClientReg.name}",
+				"${DBKeys.businessName}": "${testClientReg.businessName}",
+				"${DBKeys.contactNumber}": "${testClientReg.contactNumber}",
+				"${DBKeys.propertyNumber}": ${testClientReg.propertyNumber},
+				"${DBKeys.postcode}": "${testClientReg.postcode}",
+				"${DBKeys.businessType}": "${testClientReg.businessType}",
+        "${DBKeys.password}": "${testClientReg.password}"
       }""".stripMargin)
 
   "Client Registration" can {

@@ -32,9 +32,9 @@ class UserRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
   val testUser: User = User(
     crn = "testCrn",
     password = ePassword)
-
+  val badString: String = "badString"
   def equalsTestUser(user: User): Boolean = {
-    user.crn == testUser.crn && crypto.decrypt(user.password.ePassword, crypto.getKey, user.password.nonce) == "testPass"
+    user.crn == testUser.crn && crypto.decrypt(user.password.ePassword, crypto.getKey, user.password.nonce) == testPass
   }
 
   "UserRepository" can {
@@ -55,12 +55,12 @@ class UserRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
       "succeed" in {
         await(repository.create(testUser))
 
-        val user: User = await(repository.read("testCrn")).get
+        val user: User = await(repository.read(testUser.crn)).get
         equalsTestUser(user) shouldBe true
       }
 
       "fail because of not found" in {
-        await(repository.read("BadStuff")) shouldBe None
+        await(repository.read(badString)) shouldBe None
       }
     }
   }
