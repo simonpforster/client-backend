@@ -1,5 +1,6 @@
 package models
 
+import common.DBKeys
 import helpers.AbstractTest
 import play.api.libs.json.{JsSuccess, JsValue, Json}
 
@@ -7,8 +8,8 @@ import play.api.libs.json.{JsSuccess, JsValue, Json}
 class CRNSpec extends AbstractTest {
   val testRN: CRN = CRN("testCrn")
   val testRNJs: JsValue = Json.parse(
-    """{
-				"crn": "testCrn"
+    s"""{
+				"${DBKeys.crn}": "${testRN.crn}"
 			  }""".stripMargin)
 
   "client" can {

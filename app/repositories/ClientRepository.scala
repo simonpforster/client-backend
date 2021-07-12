@@ -2,6 +2,7 @@ package repositories
 
 import com.mongodb.client.model.Filters.and
 import com.mongodb.client.model.Updates.{combine, set, unset}
+import common.DBKeys
 import models.Client
 import org.mongodb.scala.model.Filters.{equal, exists}
 import org.mongodb.scala.model.Indexes.ascending
@@ -14,43 +15,43 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: ExecutionContext) extends PlayMongoRepository[Client](
-  collectionName = "clients",
+  collectionName = DBKeys.clientCollection,
   mongoComponent = mongoComponent,
   domainFormat = Client.format,
   indexes = Seq(
-    IndexModel(ascending("crn"), IndexOptions().unique(true)),
-    IndexModel(ascending("arn"), IndexOptions().unique(false).sparse(true))
+    IndexModel(ascending(DBKeys.crn), IndexOptions().unique(true)),
+    IndexModel(ascending(DBKeys.arn), IndexOptions().unique(false).sparse(true))
   )) {
 
   def create(client: Client): Future[Boolean] = collection.insertOne(client).toFuture().map {
     response => response.wasAcknowledged && !response.getInsertedId.isNull
   } recover { case _ => false }
 
-  def read(crn: String): Future[Option[Client]] = collection.find(equal("crn", crn)).headOption()
+  def read(crn: String): Future[Option[Client]] = collection.find(equal(DBKeys.crn, crn)).headOption()
 
   def readAllAgent(arn: String): Future[List[Client]] =
-    collection.find(equal("arn", arn)).toFuture().map {
+    collection.find(equal(DBKeys.arn, arn)).toFuture().map {
       _.toList
     }
 
   def delete(crn: String): Future[Boolean] =
-    collection.deleteOne(equal("crn", crn)).toFuture().map {
+    collection.deleteOne(equal(DBKeys.crn, crn)).toFuture().map {
       response => response.wasAcknowledged && response.getDeletedCount == 1
     }
 
   def addAgent(crn: String, arn: String): Future[(Boolean, Boolean)] =
-    collection.find(equal("crn", crn)).toFuture().flatMap { x =>
+    collection.find(equal(DBKeys.crn, crn)).toFuture().flatMap { x =>
       if (x.length == 1) {
-        collection.updateOne(and(equal("crn", crn), exists("arn", exists = false)), set("arn", arn))
+        collection.updateOne(and(equal(DBKeys.crn, crn), exists(DBKeys.arn, exists = false)), set(DBKeys.arn, arn))
           .toFuture().map { response => if (response.wasAcknowledged && response.getModifiedCount == 1) (true, true) else (true, false) }
       }
       else Future((false, true))
     }
 
   def removeAgent(crn: String, arn: String): Future[(Boolean, Boolean)] =
-    collection.find(equal("crn", crn)).toFuture().flatMap { x =>
+    collection.find(equal(DBKeys.crn, crn)).toFuture().flatMap { x =>
       if (x.length == 1) {
-        collection.updateOne(and(equal("crn", crn), equal("arn", arn)), unset("arn"))
+        collection.updateOne(and(equal(DBKeys.crn, crn), equal(DBKeys.arn, arn)), unset(DBKeys.arn))
           .toFuture().map { response => if (response.wasAcknowledged && response.getModifiedCount == 1) (true, true) else (true, false) }
       }
       else Future(false, true)
@@ -58,15 +59,15 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
 
   def update(client: Client): Future[Boolean] = {
     collection.updateOne(
-      Filters.equal("crn", client.crn),
+      Filters.equal(DBKeys.crn, client.crn),
       combine(
-        set("crn", client.crn),
-        set("name", client.name),
-        set("businessName", client.businessName),
-        set("contactNumber", client.contactNumber),
-        set("propertyNumber", client.propertyNumber),
-        set("postcode", client.postcode),
-        set("businessType", client.businessType)))
+        set(DBKeys.crn, client.crn),
+        set(DBKeys.name, client.name),
+        set(DBKeys.businessName, client.businessName),
+        set(DBKeys.contactNumber, client.contactNumber),
+        set(DBKeys.propertyNumber, client.propertyNumber),
+        set(DBKeys.postcode, client.postcode),
+        set(DBKeys.businessType, client.businessType)))
       .toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged())
   }
 }

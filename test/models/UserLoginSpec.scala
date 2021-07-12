@@ -1,5 +1,6 @@
 package models
 
+import common.DBKeys
 import helpers.AbstractTest
 import play.api.libs.json.{JsObject, Json}
 
@@ -9,8 +10,8 @@ class UserLoginSpec extends AbstractTest {
     password = "MyPass")
 
   val loginJson: JsObject = Json.obj(
-    "crn" -> s"${userLogin.crn}",
-    "password" -> s"${userLogin.password}"
+    s"${DBKeys.crn}" -> s"${userLogin.crn}",
+    s"${DBKeys.password}" -> s"${userLogin.password}"
   )
 
   "UserLogin" can {

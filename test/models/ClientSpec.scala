@@ -1,5 +1,6 @@
 package models
 
+import common.DBKeys
 import helpers.AbstractTest
 import play.api.libs.json.{JsSuccess, JsValue, Json}
 
@@ -13,26 +14,27 @@ class ClientSpec extends AbstractTest {
     postcode = "testPostcode",
     businessType = "testBusinessType",
     arn = Some("testArn"))
+  val testARN: String = "testArn"
   val testClientJs: JsValue = Json.parse(
-    """{
-				"crn": "testCrn",
-				"name": "testName",
-				"businessName": "testBusiness",
-				"contactNumber": "testContact",
-				"propertyNumber": "12",
-				"postcode": "testPostcode",
-				"businessType": "testBusinessType",
-				"arn": "testArn"
+    s"""{
+				"${DBKeys.crn}": "${testClient.crn}",
+				"${DBKeys.name}": "${testClient.name}",
+				"${DBKeys.businessName}": "${testClient.businessName}s",
+				"${DBKeys.contactNumber}": "${testClient.contactNumber}",
+				"${DBKeys.propertyNumber}": ${testClient.propertyNumber},
+				"${DBKeys.postcode}": "${testClient.postcode}",
+				"${DBKeys.businessType}": "${testClient.businessType}",
+				"${DBKeys.arn}": "$testARN"
 			  }""".stripMargin)
   val testClientJsNone: JsValue = Json.parse(
-    """{
-				"crn": "testCrn",
-				"name": "testName",
-				"businessName": "testBusiness",
-				"contactNumber": "testContact",
-				"propertyNumber": "12",
-				"postcode": "testPostcode",
-				"businessType": "testBusinessType"
+   s"""{
+				"${DBKeys.crn}": "${testClient.crn}",
+				"${DBKeys.name}": "${testClient.name}",
+				"${DBKeys.businessName}": "${testClient.businessName}s",
+				"${DBKeys.contactNumber}": "${testClient.contactNumber}",
+				"${DBKeys.propertyNumber}": ${testClient.propertyNumber},
+				"${DBKeys.postcode}": "${testClient.postcode}",
+				"${DBKeys.businessType}": "${testClient.businessType}"
 			  }""".stripMargin)
 
   "client" can {

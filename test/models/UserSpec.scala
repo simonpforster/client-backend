@@ -1,5 +1,6 @@
 package models
 
+import common.DBKeys
 import helpers.AbstractTest
 import play.api.libs.json.{JsValue, Json}
 
@@ -11,8 +12,8 @@ class UserSpec extends AbstractTest {
       nonce = "MyNonce".getBytes))
 
   val userJson: JsValue = Json.parse(
-    s"""{"crn": "${user.crn}",
-       "password":{ "ePassword": ${user.password.ePassword.mkString("[", ", ", "]")},
+    s"""{"${DBKeys.crn}": "${user.crn}",
+       "${DBKeys.password}":{ "ePassword": ${user.password.ePassword.mkString("[", ", ", "]")},
        "nonce": ${user.password.nonce.mkString("[", ", ", "]")}}}""".stripMargin
   )
 
