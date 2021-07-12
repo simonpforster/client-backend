@@ -19,9 +19,9 @@ class ClientSpec extends AbstractTest {
     s"""{
 				"${DBKeys.crn}": "${testClient.crn}",
 				"${DBKeys.name}": "${testClient.name}",
-				"${DBKeys.businessName}": "${testClient.businessName}s",
+				"${DBKeys.businessName}": "${testClient.businessName}",
 				"${DBKeys.contactNumber}": "${testClient.contactNumber}",
-				"${DBKeys.propertyNumber}": ${testClient.propertyNumber},
+				"${DBKeys.propertyNumber}": "${testClient.propertyNumber}",
 				"${DBKeys.postcode}": "${testClient.postcode}",
 				"${DBKeys.businessType}": "${testClient.businessType}",
 				"${DBKeys.arn}": "$testARN"
@@ -30,9 +30,9 @@ class ClientSpec extends AbstractTest {
    s"""{
 				"${DBKeys.crn}": "${testClient.crn}",
 				"${DBKeys.name}": "${testClient.name}",
-				"${DBKeys.businessName}": "${testClient.businessName}s",
+				"${DBKeys.businessName}": "${testClient.businessName}",
 				"${DBKeys.contactNumber}": "${testClient.contactNumber}",
-				"${DBKeys.propertyNumber}": ${testClient.propertyNumber},
+				"${DBKeys.propertyNumber}": "${testClient.propertyNumber}",
 				"${DBKeys.postcode}": "${testClient.postcode}",
 				"${DBKeys.businessType}": "${testClient.businessType}"
 			  }""".stripMargin)
