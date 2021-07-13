@@ -72,7 +72,10 @@ class ClientController @Inject()(cc: ControllerComponents,
   val update: Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body.validate[Client] match {
       case JsSuccess(client, _) =>
-        clientRepository.update(client).map(_ => Created)
+        clientRepository.update(client).map {
+          case true => Created
+          case false => NotFound
+        }
       case JsError(_) => Future(BadRequest)
     }
   }

@@ -179,6 +179,11 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
           val result = clientController.update.apply(fakePutRequest.withBody(Json.toJson(testClient)))
           status(result) shouldBe CREATED
         }
+        "return NotFound with update unsuccessful" in {
+          when(clientRepository.update(any())) thenReturn Future.successful(false)
+          val result = clientController.update.apply(fakePutRequest.withBody(Json.toJson(testClient)))
+          status(result) shouldBe NOT_FOUND
+        }
         "return BadRequest with Js Error" in {
           val result = clientController.update.apply(fakePutRequest.withBody(testBadJson))
           status(result) shouldBe BAD_REQUEST
