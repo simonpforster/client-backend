@@ -17,7 +17,7 @@ class UserLoginSpec extends AbstractTest {
   "UserLogin" can {
     "format" should {
       "turn a UserLogin to readable Json" in {
-        Json.toJson(userLogin)
+        Json.toJson(userLogin) shouldBe loginJson
       }
       "Turn readable json to a UserLogin" in {
         Json.fromJson[UserLogin](loginJson).get shouldBe userLogin

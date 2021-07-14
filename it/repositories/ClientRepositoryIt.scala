@@ -1,6 +1,6 @@
 package repositories
 
-import models.Client
+import models.{Client, NameUpdateDetails}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -9,6 +9,7 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
@@ -32,7 +33,7 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
   val testClientWithARN: Client = testClient.copy(arn = Some("arnTest"))
   val crnTest: String = "testCrn2"
   val arnTest: String = "arnTest"
-  val updatedClient: Client = testClient.copy(name = "newTestName")
+  val updatedNameClient: Client = testClient.copy(name = "newTestName")
   val updatedClientWithARN: Client = testClient.copy(name = "newTestName", arn = Some("arnTest"))
   val badClient: Client = testClient.copy(crn = "WrongCrn")
 
@@ -135,28 +136,24 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
 
         await(repository.read(testClient.crn)) shouldBe Some(testClient)
       }
-      "update" should {
-        "succeed without arn" in {
-          await(repository.create(testClient))
 
-          await(repository.update(updatedClient))
+      "update" can {
+        "update name" should {
+          "change a users name with correct details" in {
+            await(repository.create(testClient))
 
-          await(repository.read(testClient.crn)) shouldBe Some(updatedClient)
-        }
-        "succeed with arn" in {
-          await(repository.create(testClientWithARN))
+            await(repository.updateName(NameUpdateDetails(testClient.crn, updatedNameClient.name))) shouldBe true
 
-          await(repository.update(updatedClient)) shouldBe true
+            await(repository.read(testClient.crn)) shouldBe Some(updatedNameClient)
+          }
+          "return false if user doesn't exist" in {
+            await(repository.create(testClient))
 
-          await(repository.read(testClient.crn)) shouldBe Some(updatedClientWithARN)
-        }
-        "fail with arn when incorrect details added" in {
-          await(repository.create(testClient))
+            await(repository.updateName(NameUpdateDetails(badClient.crn, updatedNameClient.name))) shouldBe false
 
-          await(repository.update(badClient)) shouldBe false
-
-          await(repository.read(testClient.crn)) shouldBe Some(testClient)
-        }
+            await(repository.read(testClient.crn)) shouldBe Some(testClient)
+          }
+         }
       }
     }
   }
