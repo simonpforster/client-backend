@@ -1,7 +1,6 @@
 package controllers
 
-
-import models.{ARN, CRN, ClientAgentPair, NameUpdateDetails, PropertyUpdateDetails, ContactNumberUpdateDetails}
+import models.{ARN, CRN, ClientAgentPair, NameUpdateDetails, PropertyUpdateDetails, ContactNumberUpdateDetails, BusinessTypeUpdateDetails}
 import play.api.libs.json.Format.GenericFormat
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc._
@@ -74,6 +73,17 @@ class ClientController @Inject()(cc: ControllerComponents,
     request.body.validate[NameUpdateDetails] match {
       case JsSuccess(nameUpdateDetails, _) =>
         clientRepository.updateName(nameUpdateDetails).map {
+          case true => NoContent
+          case false => NotFound
+        }
+      case JsError(_) => Future(BadRequest)
+    }
+  }
+
+  val updateBusinessType: Action[JsValue] = Action.async(parse.json) { implicit request =>
+    request.body.validate[BusinessTypeUpdateDetails] match {
+      case JsSuccess(businessTypeUpdateDetails, _) =>
+        clientRepository.updateBusinessType(businessTypeUpdateDetails).map {
           case true => NoContent
           case false => NotFound
         }

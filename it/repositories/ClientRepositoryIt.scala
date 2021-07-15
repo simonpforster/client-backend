@@ -1,7 +1,6 @@
 package repositories
 
-
-import models.{Client, NameUpdateDetails, PropertyUpdateDetails, ContactNumberUpdateDetails}
+import models.{Client, NameUpdateDetails, PropertyUpdateDetails, ContactNumberUpdateDetails, BusinessTypeUpdateDetails}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -35,6 +34,7 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
   val crnTest: String = "testCrn2"
   val arnTest: String = "arnTest"
   val updatedNameClient: Client = testClient.copy(name = "newTestName")
+  val updatedBusinessTypeClient: Client = testClient.copy(businessType = "newBusiness")
   val updatedContactNumber: Client = testClient.copy(contactNumber = "newTestNumber")
   val updatedPropertyClient:Client = testClient.copy(propertyNumber = "new10", postcode = "newtestCode")
   val updatedClientWithARN: Client = testClient.copy(name = "newTestName", arn = Some("arnTest"))
@@ -187,6 +187,23 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
           await(repository.create(testClient))
 
           await(repository.updateProperty(PropertyUpdateDetails(badClient.crn, updatedPropertyClient.propertyNumber, updatedPropertyClient.postcode))) shouldBe false
+
+          await(repository.read(testClient.crn)) shouldBe Some(testClient)
+        }
+       }
+      
+      "update business type" should {
+        "change a users business type with correct details" in {
+          await(repository.create(testClient))
+
+          await(repository.updateBusinessType(BusinessTypeUpdateDetails(testClient.crn, updatedBusinessTypeClient.businessType))) shouldBe true
+
+          await(repository.read(testClient.crn)) shouldBe Some(updatedBusinessTypeClient)
+        }
+        "return false if user doesn't exist" in {
+          await(repository.create(testClient))
+
+          await(repository.updateBusinessType(BusinessTypeUpdateDetails(badClient.crn, updatedBusinessTypeClient.businessType))) shouldBe false
 
           await(repository.read(testClient.crn)) shouldBe Some(testClient)
         }

@@ -1,9 +1,7 @@
 package controllers
 
 import helpers.AbstractTest
-
-
-import models.{Client, NameUpdateDetails, PropertyUpdateDetails, ContactNumberUpdateDetails}
+import models.{Client, NameUpdateDetails, PropertyUpdateDetails, ContactNumberUpdateDetails, BusinessTypeUpdateDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{mock, when}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -32,6 +30,7 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
     "crn" -> "testCrn"
   )
   private val testNameUpdateDetails = NameUpdateDetails(testClient.crn, "newName")
+  private val testBusinessTypeUpdateDetails = BusinessTypeUpdateDetails(testClient.crn, "newBusinessType")
   private val testContactNumberUpdateDetails = ContactNumberUpdateDetails(testClient.contactNumber, "newNumber")
   private val testPropertyUpdateDetails = PropertyUpdateDetails(testClient.crn, "newPropertyNumber", "newPostcode")
   private val testArnJson = Json.obj(
@@ -232,9 +231,25 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
       }
       "return BadRequest" when {
         "when request body doesn't match the model" in {
-          when(clientRepository.updateContactNumber(any())) thenReturn Future.successful(false)
           val result = clientController.updateContactNumber.apply(fakePatchRequest.withBody(Json.toJson(testBadJson)))
 
+          status(result) shouldBe BAD_REQUEST
+        }
+      }
+      
+      "update business type" should {
+        "return NoContent with update success" in {
+          when(clientRepository.updateBusinessType(any())) thenReturn Future.successful(true)
+          val result = clientController.updateBusinessType.apply(fakePatchRequest.withBody(Json.toJson(testBusinessTypeUpdateDetails)))
+          status(result) shouldBe NO_CONTENT
+        }
+        "return NotFound with update unsuccessful" in {
+          when(clientRepository.updateBusinessType(any())) thenReturn Future.successful(false)
+          val result = clientController.updateBusinessType.apply(fakePatchRequest.withBody(Json.toJson(testBusinessTypeUpdateDetails)))
+          status(result) shouldBe NOT_FOUND
+        }
+        "return a BadRequest with Js Error" in {
+          val result = clientController.updateBusinessType.apply(fakePatchRequest.withBody(testBadJson))
           status(result) shouldBe BAD_REQUEST
         }
       }
