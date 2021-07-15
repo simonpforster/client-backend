@@ -73,10 +73,10 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
   }
 
   def updateContactNumber(contactNumberUpdateDetails: ContactNumberUpdateDetails): Future[Boolean] = {
-      collection.updateOne(
-        Filters.equal(DBKeys.crn, contactNumberUpdateDetails.crn),
-        set(DBKeys.contactNumber, contactNumberUpdateDetails.contactNumber))
-        .toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged())
+    collection.updateOne(
+      Filters.equal(DBKeys.crn, contactNumberUpdateDetails.crn),
+      set(DBKeys.contactNumber, contactNumberUpdateDetails.contactNumber))
+      .toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged())
   }
 
   def updateProperty(propertyDetails: PropertyUpdateDetails): Future[Boolean] = {
