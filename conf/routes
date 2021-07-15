@@ -10,6 +10,7 @@ POST    /register                controllers.RegistrationController.register
 DELETE  /delete-client           controllers.ClientController.deleteClient
 POST    /login                   service.LoginService.login
 PATCH   /update-name             controllers.ClientController.updateName
+PATCH   /update-property         controllers.ClientController.updateProperty
 
 # Agent routes
 PATCH   /add-agent               controllers.ClientController.addAgent
