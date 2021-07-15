@@ -1,6 +1,6 @@
 package controllers
 
-import models.{ARN, CRN, ClientAgentPair, NameUpdateDetails, PropertyUpdateDetails, ContactNumberUpdateDetails, BusinessTypeUpdateDetails}
+import models.{ARN, BusinessTypeUpdateDetails, CRN, ClientAgentPair, ContactNumberUpdateDetails, NameUpdateDetails, PropertyUpdateDetails}
 import play.api.libs.json.Format.GenericFormat
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc._
@@ -91,7 +91,7 @@ class ClientController @Inject()(cc: ControllerComponents,
     }
   }
 
-  val updateContactNumber: Action[JsValue] = Action.async(parse.json) { implicit request =>
+val updateContactNumber = Action.async(parse.json) { implicit request =>
     request.body.validate[ContactNumberUpdateDetails] match {
       case JsSuccess(value, _) =>
         clientRepository.updateContactNumber(value).map {
@@ -101,7 +101,7 @@ class ClientController @Inject()(cc: ControllerComponents,
       case JsError(_) => Future(BadRequest)
     }
   }
-
+    
   val updateProperty: Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body.validate[PropertyUpdateDetails] match {
       case JsSuccess(propertyUpdateDetails, _) =>
