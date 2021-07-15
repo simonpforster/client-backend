@@ -1,7 +1,7 @@
 package controllers
 
 import helpers.AbstractTest
-import models.{BusinessTypeUpdateDetails, Client, NameUpdateDetails}
+import models.{Client, NameUpdateDetails, PropertyUpdateDetails, ContactNumberUpdateDetails, BusinessTypeUpdateDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{mock, when}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -31,6 +31,8 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
   )
   private val testNameUpdateDetails = NameUpdateDetails(testClient.crn, "newName")
   private val testBusinessTypeUpdateDetails = BusinessTypeUpdateDetails(testClient.crn, "newBusinessType")
+  private val testContactNumberUpdateDetails = ContactNumberUpdateDetails(testClient.contactNumber, "newNumber")
+  private val testPropertyUpdateDetails = PropertyUpdateDetails(testClient.crn, "newPropertyNumber", "newPostcode")
   private val testArnJson = Json.obj(
     "arn" -> "testArn"
   )
@@ -174,22 +176,67 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
           status(result) shouldBe BAD_REQUEST
         }
       }
-      "update name" should {
-        "return NoContent with update success" in {
-          when(clientRepository.updateName(any())) thenReturn Future.successful(true)
-          val result = clientController.updateName.apply(fakePatchRequest.withBody(Json.toJson(testNameUpdateDetails)))
+    }
+
+    "update name" should {
+      "return NoContent with update success" in {
+        when(clientRepository.updateName(any())) thenReturn Future.successful(true)
+        val result = clientController.updateName.apply(fakePatchRequest.withBody(Json.toJson(testNameUpdateDetails)))
+        status(result) shouldBe NO_CONTENT
+      }
+      "return NotFound with update unsuccessful" in {
+        when(clientRepository.updateName(any())) thenReturn Future.successful(false)
+        val result = clientController.updateName.apply(fakePatchRequest.withBody(Json.toJson(testNameUpdateDetails)))
+        status(result) shouldBe NOT_FOUND
+      }
+      "return a BadRequest with Js Error" in {
+        val result = clientController.updateName.apply(fakePatchRequest.withBody(testBadJson))
+        status(result) shouldBe BAD_REQUEST
+      }
+    }
+
+    "update property details" should {
+      "return NoContent with update success" in {
+        when(clientRepository.updateProperty(any())) thenReturn Future.successful(true)
+        val result = clientController.updateProperty.apply(fakePatchRequest.withBody(Json.toJson(testPropertyUpdateDetails)))
+        status(result) shouldBe NO_CONTENT
+      }
+      "return NotFound with update unsuccessful" in {
+        when(clientRepository.updateProperty(any())) thenReturn Future.successful(false)
+        val result = clientController.updateProperty.apply(fakePatchRequest.withBody(Json.toJson(testPropertyUpdateDetails)))
+        status(result) shouldBe NOT_FOUND
+      }
+      "return a BadRequest with Js Error" in {
+        val result = clientController.updateProperty.apply(fakePatchRequest.withBody(testBadJson))
+        status(result) shouldBe BAD_REQUEST
+      }
+    }
+    
+    "updateContactNumber" should {
+      "return NoContent" when {
+        "updated successfully" in {
+          when(clientRepository.updateContactNumber(any())) thenReturn Future.successful(true)
+          val result = clientController.updateContactNumber.apply(fakePatchRequest.withBody(Json.toJson(testContactNumberUpdateDetails)))
+
           status(result) shouldBe NO_CONTENT
         }
-        "return NotFound with update unsuccessful" in {
-          when(clientRepository.updateName(any())) thenReturn Future.successful(false)
-          val result = clientController.updateName.apply(fakePatchRequest.withBody(Json.toJson(testNameUpdateDetails)))
+      }
+      "return NotFound" when {
+        "update unsuccessful" in {
+          when(clientRepository.updateContactNumber(any())) thenReturn Future.successful(false)
+          val result = clientController.updateContactNumber.apply(fakePatchRequest.withBody(Json.toJson(testContactNumberUpdateDetails)))
+
           status(result) shouldBe NOT_FOUND
         }
-        "return a BadRequest with Js Error" in {
-          val result = clientController.updateName.apply(fakePatchRequest.withBody(testBadJson))
+      }
+      "return BadRequest" when {
+        "when request body doesn't match the model" in {
+          val result = clientController.updateContactNumber.apply(fakePatchRequest.withBody(Json.toJson(testBadJson)))
+
           status(result) shouldBe BAD_REQUEST
         }
       }
+      
       "update business type" should {
         "return NoContent with update success" in {
           when(clientRepository.updateBusinessType(any())) thenReturn Future.successful(true)
@@ -209,4 +256,5 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
     }
   }
 }
+
 

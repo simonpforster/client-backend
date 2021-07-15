@@ -1,9 +1,10 @@
 package repositories
 
 import com.mongodb.client.model.Filters.and
-import com.mongodb.client.model.Updates.{combine, set, unset}
+import com.mongodb.client.model.Updates.{addEachToSet, combine, set, unset}
 import common.DBKeys
-import models.{BusinessTypeUpdateDetails, Client, NameUpdateDetails}
+import models.{Client, NameUpdateDetails, PropertyUpdateDetails, ContactNumberUpdateDetails, BusinessTypeUpdateDetails}
+import org.mongodb.scala.model.Accumulators.addToSet
 import org.mongodb.scala.model.Filters.{equal, exists}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions}
@@ -63,10 +64,26 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
       set(DBKeys.name, nameUpdateDetails.name)
     ).toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged())
   }
+
   def updateBusinessType(businessTypeUpdateDetails: BusinessTypeUpdateDetails): Future[Boolean] = {
     collection.updateOne(
       Filters.equal(DBKeys.crn, businessTypeUpdateDetails.crn),
-      set(DBKeys.businessType, businessTypeUpdateDetails.businessType)
+      set(DBKeys.businessType, businessTypeUpdateDetails.businessType))
+      .toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged())
+  }
+
+  def updateContactNumber(contactNumberUpdateDetails: ContactNumberUpdateDetails): Future[Boolean] = {
+      collection.updateOne(
+        Filters.equal(DBKeys.crn, contactNumberUpdateDetails.crn),
+        set(DBKeys.contactNumber, contactNumberUpdateDetails.contactNumber))
+        .toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged())
+  }
+
+  def updateProperty(propertyDetails: PropertyUpdateDetails): Future[Boolean] = {
+    collection.updateOne(
+      Filters.equal(DBKeys.crn, propertyDetails.crn),
+      combine(set(DBKeys.propertyNumber, propertyDetails.propertyNumber),
+        set(DBKeys.postcode, propertyDetails.postcode))
     ).toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged())
   }
 }
