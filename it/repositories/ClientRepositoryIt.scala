@@ -1,6 +1,6 @@
 package repositories
 
-import models.{Client, NameUpdateDetails}
+import models.{Client, ContactNumberUpdateDetails, NameUpdateDetails}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -34,6 +34,7 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
   val crnTest: String = "testCrn2"
   val arnTest: String = "arnTest"
   val updatedNameClient: Client = testClient.copy(name = "newTestName")
+  val updatedContactNumber: Client = testClient.copy(contactNumber = "newTestNumber")
   val updatedClientWithARN: Client = testClient.copy(name = "newTestName", arn = Some("arnTest"))
   val badClient: Client = testClient.copy(crn = "WrongCrn")
 
@@ -154,6 +155,24 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
             await(repository.read(testClient.crn)) shouldBe Some(testClient)
           }
          }
+      }
+
+      "updateContactNumber" should {
+        "return true if update a user's contact number with the new received one" in {
+          await(repository.create(testClient))
+
+          await(repository.updateContactNumber(ContactNumberUpdateDetails(testClient.crn, updatedContactNumber.contactNumber))) shouldBe true
+
+          await(repository.read(testClient.crn)) shouldBe Some(updatedContactNumber)
+        }
+
+        "return false if doesn't update a user's contact number with the new received one" in {
+          await(repository.create(testClient))
+
+          await(repository.updateContactNumber(ContactNumberUpdateDetails(testClient.crn, testClient.contactNumber))) shouldBe false
+
+          await(repository.read(testClient.crn)) shouldBe Some(testClient)
+        }
       }
     }
   }
