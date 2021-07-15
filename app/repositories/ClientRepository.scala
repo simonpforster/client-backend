@@ -3,7 +3,8 @@ package repositories
 import com.mongodb.client.model.Filters.and
 import com.mongodb.client.model.Updates.{addEachToSet, combine, set, unset}
 import common.DBKeys
-import models.{Client, NameUpdateDetails, PropertyUpdateDetails}
+
+import models.{Client, NameUpdateDetails, PropertyUpdateDetails, ContactNumberUpdateDetails}
 import org.mongodb.scala.model.Accumulators.addToSet
 import org.mongodb.scala.model.Filters.{equal, exists}
 import org.mongodb.scala.model.Indexes.ascending
@@ -63,6 +64,14 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
       Filters.equal(DBKeys.crn, nameUpdateDetails.crn),
       set(DBKeys.name, nameUpdateDetails.name)
     ).toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged())
+  }
+
+
+  def updateContactNumber(contactNumberUpdateDetails: ContactNumberUpdateDetails): Future[Boolean] = {
+      collection.updateOne(
+        Filters.equal(DBKeys.crn, contactNumberUpdateDetails.crn),
+        set(DBKeys.contactNumber, contactNumberUpdateDetails.contactNumber))
+        .toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged())
   }
 
   def updateProperty(propertyDetails: PropertyUpdateDetails): Future[Boolean] = {
