@@ -12,6 +12,8 @@ import play.api.test.Helpers.{await, contentAsJson, defaultAwaitTimeout, status}
 import play.api.test.{FakeRequest, Helpers}
 import repositories.UserRepository
 import service.EncryptionService
+
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class UserControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
@@ -49,50 +51,42 @@ class UserControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
   "UserController" can {
     "read" should {
       "Ok" in {
-        when(userRepository.read(any())) thenReturn Future.successful(Some(testUser))
-
+        when(userRepository.read(any())) thenReturn Future(Some(testUser))
         val result: Future[Result] = userController.read.apply(fakeGetRequest.withBody(testUserCrn))
         status(result) shouldBe OK
         contentAsJson(result) shouldBe Json.toJson(testUser)
       }
 
       "NotFound" in {
-        when(userRepository.read(any())) thenReturn Future.successful(None)
-
+        when(userRepository.read(any())) thenReturn Future(None)
         val result: Future[Result] = userController.read.apply(fakeGetRequest.withBody(testUserCrn))
-
         status(result) shouldBe NOT_FOUND
       }
 
       "BadRequest" in {
         val result: Future[Result] = userController.read.apply(fakeGetRequest.withBody(testBadJson))
-
         status(result) shouldBe BAD_REQUEST
       }
     }
 
     "check matches" should {
       "succeed" in {
-        when(userRepository.read(any())) thenReturn Future.successful(Some(testUser))
-
+        when(userRepository.read(any())) thenReturn Future(Some(testUser))
         await(userController.checkMatches(UserLogin(testUser.crn,testPass))) shouldBe true
       }
 
       "fail because of wrong password" in {
-        when(userRepository.read(any())) thenReturn Future.successful(Some(testUser))
-
+        when(userRepository.read(any())) thenReturn Future(Some(testUser))
         await(userController.checkMatches(UserLogin(testUser.crn, badString))) shouldBe false
       }
 
       "fail because no user" in {
-        when(userRepository.read(any())) thenReturn Future.successful(None)
-
+        when(userRepository.read(any())) thenReturn Future(None)
         await(userController.checkMatches(UserLogin(testUser.crn, testPass))) shouldBe false
       }
 
       "fail because the repository wonky" in {
-        when(userRepository.read(any())) thenReturn Future.successful(Some(testUser))
-
+        when(userRepository.read(any())) thenReturn Future(Some(testUser))
         await(userController.checkMatches(UserLogin(badString, testPass))) shouldBe false
       }
     }

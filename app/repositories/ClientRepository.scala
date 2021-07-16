@@ -1,10 +1,9 @@
 package repositories
 
 import com.mongodb.client.model.Filters.and
-import com.mongodb.client.model.Updates.{addEachToSet, combine, set, unset}
+import com.mongodb.client.model.Updates.{combine, set, unset}
 import common.DBKeys
-import models.{Client, NameUpdateDetails, PropertyUpdateDetails, ContactNumberUpdateDetails, BusinessTypeUpdateDetails}
-import org.mongodb.scala.model.Accumulators.addToSet
+import models._
 import org.mongodb.scala.model.Filters.{equal, exists}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions}

@@ -16,7 +16,9 @@ import scala.concurrent.Future
 class RegistrationControllerSpec extends AbstractTest {
   val rs: RegistrationService = mock(classOf[RegistrationService])
   val controller: RegistrationController = new RegistrationController(Helpers.stubControllerComponents(), rs)
-  val fakePostRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("POST", "/")
+  val fakePostRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(
+    method = "POST",
+    path = "/")
   val testClient: Client = Client(
     crn = "testCrn",
     name = "testName",
@@ -48,15 +50,12 @@ class RegistrationControllerSpec extends AbstractTest {
     }
     "return a Unauthorized" in {
       when(rs.register(any())) thenReturn Future(None)
-
       val result: Future[Result] = controller.register.apply(fakePostRequest.withBody(testUserJson))
-
       status(result) shouldBe UNAUTHORIZED
     }
 
     "return a BadRequest" in {
       val result: Future[Result] = controller.register.apply(fakePostRequest.withBody(testBadJson))
-
       status(result) shouldBe BAD_REQUEST
     }
   }

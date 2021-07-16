@@ -30,15 +30,24 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
     propertyNumber = "12",
     postcode = "testCode",
     businessType = "testType")
-  val testClientWithARN: Client = testClient.copy(arn = Some("arnTest"))
+  val testClientWithARN: Client = testClient.copy(
+    arn = Some("arnTest"))
   val crnTest: String = "testCrn2"
   val arnTest: String = "arnTest"
-  val updatedNameClient: Client = testClient.copy(name = "newTestName")
-  val updatedBusinessTypeClient: Client = testClient.copy(businessType = "newBusiness")
-  val updatedContactNumber: Client = testClient.copy(contactNumber = "newTestNumber")
-  val updatedPropertyClient:Client = testClient.copy(propertyNumber = "new10", postcode = "newtestCode")
-  val updatedClientWithARN: Client = testClient.copy(name = "newTestName", arn = Some("arnTest"))
-  val badClient: Client = testClient.copy(crn = "WrongCrn")
+  val updatedNameClient: Client = testClient.copy(
+    name = "newTestName")
+  val updatedBusinessTypeClient: Client = testClient.copy(
+    businessType = "newBusiness")
+  val updatedContactNumber: Client = testClient.copy(
+    contactNumber = "newTestNumber")
+  val updatedPropertyClient: Client = testClient.copy(
+    propertyNumber = "new10",
+    postcode = "newtestCode")
+  val updatedClientWithARN: Client = testClient.copy(
+    name = "newTestName",
+    arn = Some("arnTest"))
+  val badClient: Client = testClient.copy(
+    crn = "WrongCrn")
 
   "ClientRepository" can {
     "create" should {
@@ -57,7 +66,6 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
     "read client" should {
       "succeed" in {
         await(repository.create(testClient))
-
         await(repository.read(testClient.crn)) shouldBe Some(testClient)
       }
 
@@ -68,9 +76,8 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
 
     "read all agent" should {
       "succeed" in {
-        val testClientList = List(testClient.copy(arn = testClientWithARN.arn), testClient.copy(crn = crnTest, arn = testClientWithARN.arn))
+        val testClientList: Seq[Client] = List(testClient.copy(arn = testClientWithARN.arn), testClient.copy(crn = crnTest, arn = testClientWithARN.arn))
         testClientList.map(x => await(repository.create(x)))
-
         await(repository.readAllAgent(arnTest)) shouldBe testClientList
       }
 
@@ -94,23 +101,18 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
     "add agent" should {
       "succeed" in {
         await(repository.create(testClient))
-
         await(repository.addAgent(crn = testClient.crn, arn = arnTest)) shouldBe(true, true)
-
         await(repository.read(testClient.crn)) shouldBe Some(testClient.copy(arn = Some(arnTest)))
       }
 
       "fail because not found" in {
         await(repository.create(testClient))
-
         await(repository.addAgent(badClient.crn, arnTest)) shouldBe(false, true)
       }
 
       "fail because conflict" in {
         await(repository.create(testClient.copy(arn = updatedClientWithARN.arn)))
-
         await(repository.addAgent(testClientWithARN.crn, arnTest)) shouldBe(true, false)
-
         await(repository.read(testClientWithARN.crn)) shouldBe Some(testClient.copy(arn = updatedClientWithARN.arn))
       }
     }
@@ -118,59 +120,45 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
     "remove agent" should {
       "succeed" in {
         await(repository.create(testClient.copy(arn = updatedClientWithARN.arn)))
-
         await(repository.removeAgent(testClientWithARN.crn, arnTest)) shouldBe(true, true)
-
         await(repository.read(testClientWithARN.crn)) shouldBe Some(testClient)
       }
 
       "fail because not found" in {
         await(repository.create(testClient.copy(arn = testClientWithARN.arn)))
-
         await(repository.removeAgent(badClient.crn, arnTest)) shouldBe(false, true)
-
         await(repository.read(testClient.crn)) shouldBe Some(testClient.copy(arn = testClientWithARN.arn))
       }
 
       "fail because of conflict" in {
         await(repository.create(testClient))
-
         await(repository.removeAgent(testClient.crn, arnTest)) shouldBe(true, false)
-
         await(repository.read(testClient.crn)) shouldBe Some(testClient)
       }
 
       "update name" should {
         "change a users name with correct details" in {
           await(repository.create(testClient))
-
           await(repository.updateName(NameUpdateDetails(testClient.crn, updatedNameClient.name))) shouldBe true
-
           await(repository.read(testClient.crn)) shouldBe Some(updatedNameClient)
         }
         "return false if user doesn't exist" in {
           await(repository.create(testClient))
-
           await(repository.updateName(NameUpdateDetails(badClient.crn, updatedNameClient.name))) shouldBe false
-
           await(repository.read(testClient.crn)) shouldBe Some(testClient)
         }
-       }
-      
+      }
+
       "updateContactNumber" should {
         "return true if update a user's contact number with the new received one" in {
           await(repository.create(testClient))
-
           await(repository.updateContactNumber(ContactNumberUpdateDetails(testClient.crn, updatedContactNumber.contactNumber))) shouldBe true
-
           await(repository.read(testClient.crn)) shouldBe Some(updatedContactNumber)
         }
 
         "return false if doesn't update a user's contact number with the new received one" in {
           await(repository.create(testClient))
-
           await(repository.updateContactNumber(ContactNumberUpdateDetails(testClient.crn, testClient.contactNumber))) shouldBe false
-
           await(repository.read(testClient.crn)) shouldBe Some(testClient)
         }
       }
@@ -178,33 +166,25 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
       "update property" should {
         "change a users property number with correct details" in {
           await(repository.create(testClient))
-
           await(repository.updateProperty(PropertyUpdateDetails(testClient.crn, updatedPropertyClient.propertyNumber, updatedPropertyClient.postcode))) shouldBe true
-
           await(repository.read(testClient.crn)) shouldBe Some(updatedPropertyClient)
         }
         "return false if user doesn't exist" in {
           await(repository.create(testClient))
-
           await(repository.updateProperty(PropertyUpdateDetails(badClient.crn, updatedPropertyClient.propertyNumber, updatedPropertyClient.postcode))) shouldBe false
-
           await(repository.read(testClient.crn)) shouldBe Some(testClient)
         }
-       }
-      
+      }
+
       "update business type" should {
         "change a users business type with correct details" in {
           await(repository.create(testClient))
-
           await(repository.updateBusinessType(BusinessTypeUpdateDetails(testClient.crn, updatedBusinessTypeClient.businessType))) shouldBe true
-
           await(repository.read(testClient.crn)) shouldBe Some(updatedBusinessTypeClient)
         }
         "return false if user doesn't exist" in {
           await(repository.create(testClient))
-
           await(repository.updateBusinessType(BusinessTypeUpdateDetails(badClient.crn, updatedBusinessTypeClient.businessType))) shouldBe false
-
           await(repository.read(testClient.crn)) shouldBe Some(testClient)
         }
       }

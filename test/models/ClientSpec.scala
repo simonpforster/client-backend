@@ -27,7 +27,7 @@ class ClientSpec extends AbstractTest {
 				"${DBKeys.arn}": "$testARN"
 			  }""".stripMargin)
   val testClientJsNone: JsValue = Json.parse(
-   s"""{
+    s"""{
 				"${DBKeys.crn}": "${testClient.crn}",
 				"${DBKeys.name}": "${testClient.name}",
 				"${DBKeys.businessName}": "${testClient.businessName}",
