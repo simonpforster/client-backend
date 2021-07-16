@@ -1,10 +1,11 @@
 package controllers
 
-import models.{CRN, User, UserLogin}
+import models.{CRN, UserLogin}
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc.{AbstractController, Action, ControllerComponents}
 import repositories.UserRepository
 import service.EncryptionService
+
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

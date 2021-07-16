@@ -22,7 +22,9 @@ class LoginSpec extends AbstractTest with GuiceOneAppPerSuite {
   val clientRepo: ClientRepository = mock(classOf[ClientRepository])
   val userController: UserController = mock(classOf[UserController])
   val crypto: EncryptionService = app.injector.instanceOf[EncryptionService]
-  val fakePostRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("POST", "/")
+  val fakePostRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(
+    method = "POST",
+    path = "/")
   val service: LoginService = new LoginService(
     cc = Helpers.stubControllerComponents(),
     userController = userController,

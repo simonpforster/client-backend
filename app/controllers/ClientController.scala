@@ -91,7 +91,7 @@ class ClientController @Inject()(cc: ControllerComponents,
     }
   }
 
-val updateContactNumber = Action.async(parse.json) { implicit request =>
+  val updateContactNumber: Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body.validate[ContactNumberUpdateDetails] match {
       case JsSuccess(value, _) =>
         clientRepository.updateContactNumber(value).map {
@@ -101,7 +101,7 @@ val updateContactNumber = Action.async(parse.json) { implicit request =>
       case JsError(_) => Future(BadRequest)
     }
   }
-    
+
   val updateProperty: Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body.validate[PropertyUpdateDetails] match {
       case JsSuccess(propertyUpdateDetails, _) =>
