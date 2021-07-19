@@ -27,7 +27,7 @@ PATCH   /clients/:crn/business-type    controllers.ClientController.updateBusine
 PATCH   /clients/:crn/add              controllers.ClientController.addAgent(crn: String)
 +nocsrf
 PATCH   /clients/:crn/remove           controllers.ClientController.removeAgent(crn: String)
-GET     /clients/:arn                  controllers.ClientController.readAllAgent(arn: String)
+GET     /clients/read-all/:arn         controllers.ClientController.readAllAgent(arn: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file            controllers.Assets.versioned(path="/public", file: Asset)
