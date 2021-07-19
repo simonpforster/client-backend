@@ -3,7 +3,7 @@ package repositories
 import com.mongodb.client.model.Filters.and
 import com.mongodb.client.model.Updates.{combine, set, unset}
 import common.DBKeys
-import models.{Client, NameUpdateDetails}
+import models._
 import org.mongodb.scala.model.Filters.{equal, exists}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions}
@@ -57,10 +57,33 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
       else Future(false, true)
     }
 
-  def updateName(nameUpdateDetails: NameUpdateDetails): Future[Boolean] = {
+  def updateName(crn: String, newName: String): Future[Boolean] = {
     collection.updateOne(
-      Filters.equal(DBKeys.crn, nameUpdateDetails.crn),
-      set(DBKeys.name, nameUpdateDetails.name)
+      Filters.equal(DBKeys.crn, crn),
+      set(DBKeys.name, newName)
+    ).toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged())
+
+  }
+
+  def updateBusinessType(crn: String, newBusinessType: String): Future[Boolean] = {
+    collection.updateOne(
+      Filters.equal(DBKeys.crn, crn),
+      set(DBKeys.businessType, newBusinessType))
+      .toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged())
+  }
+
+  def updateContactNumber(crn: String, newContactNumber: String): Future[Boolean] = {
+    collection.updateOne(
+      Filters.equal(DBKeys.crn, crn),
+      set(DBKeys.contactNumber, newContactNumber))
+      .toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged())
+  }
+
+  def updateProperty(crn: String, newPropertyNumber: String, newPostcode: String): Future[Boolean] = {
+    collection.updateOne(
+      Filters.equal(DBKeys.crn, crn),
+      combine(set(DBKeys.propertyNumber, newPropertyNumber),
+        set(DBKeys.postcode, newPostcode))
     ).toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged())
   }
 }

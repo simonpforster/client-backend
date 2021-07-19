@@ -68,7 +68,6 @@ class UserRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
   "delete" should {
     "succeed" in {
       await(repository.create(testUser))
-
       await(repository.delete(testUser.crn)) shouldBe true
     }
 

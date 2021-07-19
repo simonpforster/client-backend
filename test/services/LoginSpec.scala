@@ -22,7 +22,9 @@ class LoginSpec extends AbstractTest with GuiceOneAppPerSuite {
   val clientRepo: ClientRepository = mock(classOf[ClientRepository])
   val userController: UserController = mock(classOf[UserController])
   val crypto: EncryptionService = app.injector.instanceOf[EncryptionService]
-  val fakePostRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("POST", "/")
+  val fakePostRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(
+    method = "POST",
+    path = "/")
   val service: LoginService = new LoginService(
     cc = Helpers.stubControllerComponents(),
     userController = userController,
@@ -55,25 +57,25 @@ class LoginSpec extends AbstractTest with GuiceOneAppPerSuite {
       "return the client from a user" in {
         when(userController.checkMatches(any())) thenReturn Future.successful(true)
         when(clientRepo.read(any())) thenReturn Future.successful(Some(client))
-        val result: Future[Result] = service.login.apply(fakePostRequest.withBody(userLoginJson))
+        val result: Future[Result] = service.login(client.crn).apply(fakePostRequest.withBody(userLoginJson))
         status(result) shouldBe OK
         contentAsJson(result) shouldBe Json.toJson(client)
       }
       "return Unauthorised if passwords do not match" in {
         when(userController.checkMatches(any())) thenReturn Future.successful(false)
         when(clientRepo.read(any())) thenReturn Future.successful(None)
-        val result: Future[Result] = service.login.apply(fakePostRequest.withBody(userLoginJson))
+        val result: Future[Result] = service.login(client.crn).apply(fakePostRequest.withBody(userLoginJson))
         status(result) shouldBe UNAUTHORIZED
       }
       "return a bad request if json is incorrect" in {
-        val result: Future[Result] = service.login.apply(fakePostRequest.withBody(badJson))
+        val result: Future[Result] = service.login(client.crn).apply(fakePostRequest.withBody(badJson))
         status(result) shouldBe BAD_REQUEST
       }
 
       "return not found if client is not in collection but user is" in {
         when(userController.checkMatches(any())) thenReturn Future.successful(true)
         when(clientRepo.read(any())) thenReturn Future.successful(None)
-        val result: Future[Result] = service.login.apply(fakePostRequest.withBody(userLoginJson))
+        val result: Future[Result] = service.login(client.crn).apply(fakePostRequest.withBody(userLoginJson))
         status(result) shouldBe NOT_FOUND
       }
     }
