@@ -57,32 +57,33 @@ class ClientRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Ex
       else Future(false, true)
     }
 
-  def updateName(nameUpdateDetails: NameUpdateDetails): Future[Boolean] = {
+  def updateName(crn: String, newName: String): Future[Boolean] = {
     collection.updateOne(
-      Filters.equal(DBKeys.crn, nameUpdateDetails.crn),
-      set(DBKeys.name, nameUpdateDetails.name)
+      Filters.equal(DBKeys.crn, crn),
+      set(DBKeys.name, newName)
     ).toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged())
+
   }
 
-  def updateBusinessType(businessTypeUpdateDetails: BusinessTypeUpdateDetails): Future[Boolean] = {
+  def updateBusinessType(crn: String, newBusinessType: String): Future[Boolean] = {
     collection.updateOne(
-      Filters.equal(DBKeys.crn, businessTypeUpdateDetails.crn),
-      set(DBKeys.businessType, businessTypeUpdateDetails.businessType))
+      Filters.equal(DBKeys.crn, crn),
+      set(DBKeys.businessType, newBusinessType))
       .toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged())
   }
 
-  def updateContactNumber(contactNumberUpdateDetails: ContactNumberUpdateDetails): Future[Boolean] = {
+  def updateContactNumber(crn: String, newContactNumber: String): Future[Boolean] = {
     collection.updateOne(
-      Filters.equal(DBKeys.crn, contactNumberUpdateDetails.crn),
-      set(DBKeys.contactNumber, contactNumberUpdateDetails.contactNumber))
+      Filters.equal(DBKeys.crn, crn),
+      set(DBKeys.contactNumber, newContactNumber))
       .toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged())
   }
 
-  def updateProperty(propertyDetails: PropertyUpdateDetails): Future[Boolean] = {
+  def updateProperty(crn: String, newPropertyNumber: String, newPostcode: String): Future[Boolean] = {
     collection.updateOne(
-      Filters.equal(DBKeys.crn, propertyDetails.crn),
-      combine(set(DBKeys.propertyNumber, propertyDetails.propertyNumber),
-        set(DBKeys.postcode, propertyDetails.postcode))
+      Filters.equal(DBKeys.crn, crn),
+      combine(set(DBKeys.propertyNumber, newPropertyNumber),
+        set(DBKeys.postcode, newPostcode))
     ).toFuture().map(result => result.getModifiedCount == 1 && result.wasAcknowledged())
   }
 }

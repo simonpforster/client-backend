@@ -1,6 +1,7 @@
 package repositories
 
-import models.{Client, NameUpdateDetails, PropertyUpdateDetails, ContactNumberUpdateDetails, BusinessTypeUpdateDetails}
+
+import models._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -34,6 +35,7 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
     arn = Some("arnTest"))
   val crnTest: String = "testCrn2"
   val arnTest: String = "arnTest"
+
   val updatedNameClient: Client = testClient.copy(
     name = "newTestName")
   val updatedBusinessTypeClient: Client = testClient.copy(
@@ -139,26 +141,34 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
       "update name" should {
         "change a users name with correct details" in {
           await(repository.create(testClient))
-          await(repository.updateName(NameUpdateDetails(testClient.crn, updatedNameClient.name))) shouldBe true
+
+          await(repository.updateName(testClient.crn, updatedNameClient.name)) shouldBe true
+
           await(repository.read(testClient.crn)) shouldBe Some(updatedNameClient)
         }
         "return false if user doesn't exist" in {
           await(repository.create(testClient))
-          await(repository.updateName(NameUpdateDetails(badClient.crn, updatedNameClient.name))) shouldBe false
+
+          await(repository.updateName(badClient.crn, updatedNameClient.name)) shouldBe false
+
           await(repository.read(testClient.crn)) shouldBe Some(testClient)
         }
-      }
-
+       }
+      
       "updateContactNumber" should {
         "return true if update a user's contact number with the new received one" in {
           await(repository.create(testClient))
-          await(repository.updateContactNumber(ContactNumberUpdateDetails(testClient.crn, updatedContactNumber.contactNumber))) shouldBe true
+
+          await(repository.updateContactNumber(testClient.crn, updatedContactNumber.contactNumber)) shouldBe true
+
           await(repository.read(testClient.crn)) shouldBe Some(updatedContactNumber)
         }
 
         "return false if doesn't update a user's contact number with the new received one" in {
           await(repository.create(testClient))
-          await(repository.updateContactNumber(ContactNumberUpdateDetails(testClient.crn, testClient.contactNumber))) shouldBe false
+
+          await(repository.updateContactNumber(testClient.crn, testClient.contactNumber)) shouldBe false
+
           await(repository.read(testClient.crn)) shouldBe Some(testClient)
         }
       }
@@ -166,26 +176,32 @@ class ClientRepositoryIt extends AnyWordSpec with GuiceOneServerPerSuite
       "update property" should {
         "change a users property number with correct details" in {
           await(repository.create(testClient))
-          await(repository.updateProperty(PropertyUpdateDetails(testClient.crn, updatedPropertyClient.propertyNumber, updatedPropertyClient.postcode))) shouldBe true
+
+          await(repository.updateProperty(testClient.crn, updatedPropertyClient.propertyNumber, updatedPropertyClient.postcode)) shouldBe true
+
           await(repository.read(testClient.crn)) shouldBe Some(updatedPropertyClient)
         }
         "return false if user doesn't exist" in {
           await(repository.create(testClient))
-          await(repository.updateProperty(PropertyUpdateDetails(badClient.crn, updatedPropertyClient.propertyNumber, updatedPropertyClient.postcode))) shouldBe false
+
+          await(repository.updateProperty(badClient.crn, updatedPropertyClient.propertyNumber, updatedPropertyClient.postcode)) shouldBe false
+
           await(repository.read(testClient.crn)) shouldBe Some(testClient)
         }
-      }
-
+       }
+      
       "update business type" should {
         "change a users business type with correct details" in {
           await(repository.create(testClient))
-          await(repository.updateBusinessType(BusinessTypeUpdateDetails(testClient.crn, updatedBusinessTypeClient.businessType))) shouldBe true
+
+          await(repository.updateBusinessType(testClient.crn, updatedBusinessTypeClient.businessType)) shouldBe true
+
           await(repository.read(testClient.crn)) shouldBe Some(updatedBusinessTypeClient)
         }
         "return false if user doesn't exist" in {
           await(repository.create(testClient))
-          await(repository.updateBusinessType(BusinessTypeUpdateDetails(badClient.crn, updatedBusinessTypeClient.businessType))) shouldBe false
-          await(repository.read(testClient.crn)) shouldBe Some(testClient)
+
+          await(repository.updateBusinessType(badClient.crn, updatedBusinessTypeClient.businessType)) shouldBe false
         }
       }
     }

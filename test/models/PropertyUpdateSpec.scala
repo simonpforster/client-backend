@@ -4,10 +4,10 @@ import common.DBKeys
 import helpers.AbstractTest
 import play.api.libs.json.{JsObject, Json}
 
-class PropertyUpdateSpec extends AbstractTest {
-  val updatedDetails: PropertyUpdateDetails = PropertyUpdateDetails("CRNTEST", "newPropertyNumber", "newPostcode")
+
+class PropertyUpdateSpec extends AbstractTest{
+  val updatedDetails: PropertyUpdateDetails = PropertyUpdateDetails("newPropertyNumber", "newPostcode")
   val uDetailsJson: JsObject = Json.obj(
-    s"${DBKeys.crn}" -> s"${updatedDetails.crn}",
     s"${DBKeys.propertyNumber}" -> s"${updatedDetails.propertyNumber}",
     s"${DBKeys.postcode}" -> s"${updatedDetails.postcode}"
   )

@@ -1,7 +1,9 @@
 package controllers
 
+import akka.util.ByteString
 import helpers.AbstractTest
-import models.{BusinessTypeUpdateDetails, Client, ContactNumberUpdateDetails, NameUpdateDetails, PropertyUpdateDetails}
+import play.api.libs.streams.Accumulator
+import models._
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{mock, when}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -29,25 +31,15 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
   private val testClientCrn = Json.obj(
     "crn" -> "testCrn"
   )
-  private val testNameUpdateDetails = NameUpdateDetails(
-    crn = testClient.crn,
-    name = "newName")
-  private val testBusinessTypeUpdateDetails = BusinessTypeUpdateDetails(
-    crn = testClient.crn,
-    businessType = "newBusinessType")
-  private val testContactNumberUpdateDetails = ContactNumberUpdateDetails(
-    crn = testClient.contactNumber,
-    contactNumber = "newNumber")
-  private val testPropertyUpdateDetails = PropertyUpdateDetails(
-    crn = testClient.crn,
-    propertyNumber = "newPropertyNumber",
-    postcode = "newPostcode")
+
+  private val testNameUpdateDetails = NameUpdateDetails("newName")
+  private val testBusinessTypeUpdateDetails = BusinessTypeUpdateDetails("newBusinessType")
+  private val testContactNumberUpdateDetails = ContactNumberUpdateDetails("newNumber")
+  private val testPropertyUpdateDetails = PropertyUpdateDetails("newPropertyNumber", "newPostcode")
+
+  private val testArn = "testArn"
   private val testArnJson = Json.obj(
-    "arn" -> "testArn"
-  )
-  private val testBodyCAPair = Json.obj(
-    "crn" -> "testCrn",
-    "arn" -> "testArn"
+    "arn" -> testArn
   )
   private val testBadJson = Json.obj(
     "monkey" -> "do"
@@ -81,79 +73,97 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
     "read" should {
       "Ok" in {
         when(clientRepository.read(any())) thenReturn Future.successful(Some(testClient))
-        val result: Future[Result] = clientController.read.apply(fakeGetRequest.withBody(testClientCrn))
+        val result: Accumulator[ByteString, Result] = clientController.read(testClient.crn).apply(fakeGetRequest.withBody(testClientCrn))
         status(result) shouldBe OK
         contentAsJson(result) shouldBe Json.toJson(testClient)
       }
       "NotFound" in {
         when(clientRepository.read(any())) thenReturn Future.successful(None)
-        val result: Future[Result] = clientController.read.apply(fakeGetRequest.withBody(testClientCrn))
+        val result: Accumulator[ByteString, Result] = clientController.read(testClient.crn).apply(fakeGetRequest.withBody(testClientCrn))
         status(result) shouldBe NOT_FOUND
       }
       "BadRequest" in {
-        val result: Future[Result] = clientController.read.apply(fakeGetRequest.withBody(testBadJson))
+        when(clientRepository.read(any())) thenReturn Future.failed(new RuntimeException)
+        val result: Accumulator[ByteString, Result] = clientController.read(testClient.crn).apply(fakeGetRequest.withBody(testBadJson))
         status(result) shouldBe BAD_REQUEST
       }
     }
     "read all agent" should {
       "Ok" in {
         when(clientRepository.readAllAgent(any())) thenReturn Future.successful(testClientList)
-        val result: Future[Result] = clientController.readAllAgent.apply(fakeGetRequest.withBody(testArnJson))
+        val result: Accumulator[ByteString, Result] = clientController.readAllAgent(testArn).apply(fakeGetRequest.withBody(testArnJson))
+
         status(result) shouldBe OK
         contentAsJson(result) shouldBe Json.toJson(testClientList)
       }
       "Ok empty" in {
         when(clientRepository.readAllAgent(any())) thenReturn Future.successful(List())
-        val result: Future[Result] = clientController.readAllAgent.apply(fakeGetRequest.withBody(testArnJson))
+
+        val result: Accumulator[ByteString, Result] = clientController.readAllAgent(testArn).apply(fakeGetRequest.withBody(testArnJson))
+
         status(result) shouldBe OK
         contentAsJson(result) shouldBe Json.toJson(List[Client]())
       }
       "BadRequest" in {
-        val result: Future[Result] = clientController.readAllAgent.apply(fakeGetRequest.withBody(testBadJson))
+        when(clientRepository.readAllAgent(any())) thenReturn Future.failed(new RuntimeException)
+        val result: Accumulator[ByteString, Result] = clientController.readAllAgent(testArn).apply(fakeGetRequest.withBody(testBadJson))
+
         status(result) shouldBe BAD_REQUEST
       }
     }
     "addAgent" should {
       "NoContent" in {
         when(clientRepository.addAgent(any(), any())) thenReturn Future.successful((true, true))
-        val result: Future[Result] = clientController.addAgent.apply(fakePatchRequest.withBody(testBodyCAPair))
+
+        val result: Future[Result] = clientController.addAgent(testClient.crn).apply(fakePatchRequest.withBody(testArnJson))
+
         status(result) shouldBe NO_CONTENT
       }
 
       "Not Found" in {
         when(clientRepository.addAgent(any(), any())) thenReturn Future.successful((false, true))
-        val result: Future[Result] = clientController.addAgent.apply(fakePatchRequest.withBody(testBodyCAPair))
+
+        val result: Future[Result] = clientController.addAgent(testClient.crn).apply(fakePatchRequest.withBody(testArnJson))
+
         status(result) shouldBe NOT_FOUND
       }
 
       "Conflict" in {
         when(clientRepository.addAgent(any(), any())) thenReturn Future.successful((true, false))
-        val result: Future[Result] = clientController.addAgent.apply(fakePatchRequest.withBody(testBodyCAPair))
+
+        val result: Future[Result] = clientController.addAgent(testClient.crn).apply(fakePatchRequest.withBody(testArnJson))
         status(result) shouldBe CONFLICT
       }
       "BadRequest" in {
-        val result: Future[Result] = clientController.addAgent.apply(fakePatchRequest.withBody(testBadJson))
+        val result: Future[Result] = clientController.addAgent(testClient.crn).apply(fakePatchRequest.withBody(testBadJson))
+
         status(result) shouldBe BAD_REQUEST
       }
     }
     "removeAgent" should {
       "return NoContent" in {
         when(clientRepository.removeAgent(any(), any())) thenReturn Future.successful((true, true))
-        val result: Future[Result] = clientController.removeAgent.apply(fakePatchRequest.withBody(testBodyCAPair))
+
+        val result: Future[Result] = clientController.removeAgent(testClient.crn).apply(fakePatchRequest.withBody(testArnJson))
+
         status(result) shouldBe NO_CONTENT
       }
       "return Not Found" in {
         when(clientRepository.removeAgent(any(), any())) thenReturn Future.successful((false, true))
-        val result: Future[Result] = clientController.removeAgent.apply(fakePatchRequest.withBody(testBodyCAPair))
+
+        val result: Future[Result] = clientController.removeAgent(testClient.crn).apply(fakePatchRequest.withBody(testArnJson))
+
         status(result) shouldBe NOT_FOUND
       }
       "return Conflict" in {
         when(clientRepository.removeAgent(any(), any())) thenReturn Future.successful((true, false))
-        val result: Future[Result] = clientController.removeAgent.apply(fakePatchRequest.withBody(testBodyCAPair))
+
+        val result: Future[Result] = clientController.removeAgent(testClient.crn).apply(fakePatchRequest.withBody(testArnJson))
         status(result) shouldBe CONFLICT
       }
       "return BadRequest" in {
-        val result: Future[Result] = clientController.removeAgent.apply(fakePatchRequest.withBody(testBadJson))
+        val result: Future[Result] = clientController.removeAgent(testClient.crn).apply(fakePatchRequest.withBody(testBadJson))
+
         status(result) shouldBe BAD_REQUEST
       }
     }
@@ -162,100 +172,117 @@ class ClientControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
         "both clientRepository.delete & userRepository.delete returns TRUE " in {
           when(clientRepository.delete(any())) thenReturn Future.successful(true)
           when(userRepository.delete(any())) thenReturn Future.successful(true)
-          val result: Future[Result] = clientController.deleteClient.apply(fakeDeleteRequest.withBody(testClientDeleteJson))
+
+          val result: Future[Result] = clientController.deleteClient(testClient.crn)
+            .apply(fakeDeleteRequest)
+
           status(result) shouldBe NO_CONTENT
         }
       }
       "return NotFound" when {
         "clientRepository.delete FALSE" in {
           when(clientRepository.delete(any())) thenReturn Future.successful(false)
-          val result: Future[Result] = clientController.deleteClient.apply(fakeDeleteRequest.withBody(testClientDeleteJson))
+          val result = clientController.deleteClient(testClient.crn).apply(fakeDeleteRequest.withBody(testClientDeleteJson))
           status(result) shouldBe NOT_FOUND
         }
         "clientRepository.delete TRUE & userRepository.delete FALSE" in {
           when(clientRepository.delete(any())) thenReturn Future.successful(true)
           when(userRepository.delete(any())) thenReturn Future.successful(false)
-          val result: Future[Result] = clientController.deleteClient.apply(fakeDeleteRequest.withBody(testClientDeleteJson))
+          val result = clientController.deleteClient(testClient.crn).apply(fakeDeleteRequest.withBody(testClientDeleteJson))
           status(result) shouldBe NOT_FOUND
         }
       }
       "return BadRequest" when {
         "wrong model received" in {
-          val result: Future[Result] = clientController.deleteClient.apply(fakeDeleteRequest.withBody(testClientDeleteBadJson))
+          when(clientRepository.delete(any())) thenReturn Future.failed(new RuntimeException)
+          val result = clientController.deleteClient(testClient.crn).apply(fakeDeleteRequest.withBody(testClientDeleteBadJson))
           status(result) shouldBe BAD_REQUEST
         }
       }
-    }
 
     "update name" should {
       "return NoContent with update success" in {
-        when(clientRepository.updateName(any())) thenReturn Future.successful(true)
-        val result: Future[Result] = clientController.updateName.apply(fakePatchRequest.withBody(Json.toJson(testNameUpdateDetails)))
+        when(clientRepository.updateName(any(), any())) thenReturn Future.successful(true)
+        val result = clientController.updateName(testClient.crn)
+          .apply(fakePatchRequest.withBody(Json.toJson(testNameUpdateDetails)))
         status(result) shouldBe NO_CONTENT
       }
       "return NotFound with update unsuccessful" in {
-        when(clientRepository.updateName(any())) thenReturn Future.successful(false)
-        val result: Future[Result] = clientController.updateName.apply(fakePatchRequest.withBody(Json.toJson(testNameUpdateDetails)))
+        when(clientRepository.updateName(any(), any())) thenReturn Future.successful(false)
+        val result = clientController.updateName(testClient.crn)
+          .apply(fakePatchRequest.withBody(Json.toJson(testNameUpdateDetails)))
         status(result) shouldBe NOT_FOUND
       }
       "return a BadRequest with Js Error" in {
-        val result: Future[Result] = clientController.updateName.apply(fakePatchRequest.withBody(testBadJson))
+        val result = clientController.updateName(testClient.crn)
+          .apply(fakePatchRequest.withBody(testBadJson))
         status(result) shouldBe BAD_REQUEST
       }
     }
 
     "update property details" should {
       "return NoContent with update success" in {
-        when(clientRepository.updateProperty(any())) thenReturn Future.successful(true)
-        val result: Future[Result] = clientController.updateProperty.apply(fakePatchRequest.withBody(Json.toJson(testPropertyUpdateDetails)))
+        when(clientRepository.updateProperty(any(), any(), any())) thenReturn Future.successful(true)
+        val result = clientController.updateProperty(testClient.crn)
+          .apply(fakePatchRequest.withBody(Json.toJson(testPropertyUpdateDetails)))
         status(result) shouldBe NO_CONTENT
       }
       "return NotFound with update unsuccessful" in {
-        when(clientRepository.updateProperty(any())) thenReturn Future.successful(false)
-        val result: Future[Result] = clientController.updateProperty.apply(fakePatchRequest.withBody(Json.toJson(testPropertyUpdateDetails)))
+        when(clientRepository.updateProperty(any(), any(), any())) thenReturn Future.successful(false)
+        val result = clientController.updateProperty(testClient.crn)
+          .apply(fakePatchRequest.withBody(Json.toJson(testPropertyUpdateDetails)))
         status(result) shouldBe NOT_FOUND
       }
       "return a BadRequest with Js Error" in {
-        val result: Future[Result] = clientController.updateProperty.apply(fakePatchRequest.withBody(testBadJson))
+        val result = clientController.updateProperty(testClient.crn)
+          .apply(fakePatchRequest.withBody(testBadJson))
         status(result) shouldBe BAD_REQUEST
       }
     }
-
+    
     "updateContactNumber" should {
       "return NoContent" when {
         "updated successfully" in {
-          when(clientRepository.updateContactNumber(any())) thenReturn Future.successful(true)
-          val result: Future[Result] = clientController.updateContactNumber.apply(fakePatchRequest.withBody(Json.toJson(testContactNumberUpdateDetails)))
+          when(clientRepository.updateContactNumber(any(), any())) thenReturn Future.successful(true)
+          val result = clientController.updateContactNumber(testClient.crn)
+            .apply(fakePatchRequest.withBody(Json.toJson(testContactNumberUpdateDetails)))
+
           status(result) shouldBe NO_CONTENT
         }
       }
       "return NotFound" when {
         "update unsuccessful" in {
-          when(clientRepository.updateContactNumber(any())) thenReturn Future.successful(false)
-          val result: Future[Result] = clientController.updateContactNumber.apply(fakePatchRequest.withBody(Json.toJson(testContactNumberUpdateDetails)))
+          when(clientRepository.updateContactNumber(any(), any())) thenReturn Future.successful(false)
+          val result = clientController.updateContactNumber(testClient.crn)
+            .apply(fakePatchRequest.withBody(Json.toJson(testContactNumberUpdateDetails)))
           status(result) shouldBe NOT_FOUND
         }
       }
       "return BadRequest" when {
         "when request body doesn't match the model" in {
-          val result: Future[Result] = clientController.updateContactNumber.apply(fakePatchRequest.withBody(Json.toJson(testBadJson)))
+          val result = clientController.updateContactNumber(testClient.crn)
+            .apply(fakePatchRequest.withBody(Json.toJson(testBadJson)))
           status(result) shouldBe BAD_REQUEST
         }
       }
-
+    }
+      
       "update business type" should {
         "return NoContent with update success" in {
-          when(clientRepository.updateBusinessType(any())) thenReturn Future.successful(true)
-          val result: Future[Result] = clientController.updateBusinessType.apply(fakePatchRequest.withBody(Json.toJson(testBusinessTypeUpdateDetails)))
+          when(clientRepository.updateBusinessType(any(), any())) thenReturn Future.successful(true)
+          val result = clientController.updateBusinessType(testClient.crn)
+            .apply(fakePatchRequest.withBody(Json.toJson(testBusinessTypeUpdateDetails)))
           status(result) shouldBe NO_CONTENT
         }
         "return NotFound with update unsuccessful" in {
-          when(clientRepository.updateBusinessType(any())) thenReturn Future.successful(false)
-          val result: Future[Result] = clientController.updateBusinessType.apply(fakePatchRequest.withBody(Json.toJson(testBusinessTypeUpdateDetails)))
+          when(clientRepository.updateBusinessType(any(), any())) thenReturn Future.successful(false)
+          val result = clientController.updateBusinessType(testClient.crn)
+            .apply(fakePatchRequest.withBody(Json.toJson(testBusinessTypeUpdateDetails)))
           status(result) shouldBe NOT_FOUND
         }
         "return a BadRequest with Js Error" in {
-          val result: Future[Result] = clientController.updateBusinessType.apply(fakePatchRequest.withBody(testBadJson))
+          val result = clientController.updateBusinessType(testClient.crn)
+            .apply(fakePatchRequest.withBody(testBadJson))
           status(result) shouldBe BAD_REQUEST
         }
       }

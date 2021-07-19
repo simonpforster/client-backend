@@ -15,7 +15,7 @@ class LoginService @Inject()(cc: ControllerComponents,
                              clientRepo: ClientRepository)
   extends AbstractController(cc) {
 
-  def login: Action[JsValue] = Action.async(parse.json) { implicit request =>
+  def login(crn: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body.validate[UserLogin] match {
       case JsSuccess(user, _) =>
         userController.checkMatches(user).flatMap {

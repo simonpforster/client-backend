@@ -41,7 +41,7 @@ class UserControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
     cc = Helpers.stubControllerComponents(),
     userRepository = userRepository,
     crypto = crypto)
-  val fakeGetRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(method = "GET", path = "/")
+  val fakeGetRequest = FakeRequest(method = "GET", path = "/")
   val testUserCrn: JsObject = Json.obj(
     "crn" -> "testCrn"
   )
@@ -51,20 +51,24 @@ class UserControllerSpec extends AbstractTest with GuiceOneAppPerSuite {
   "UserController" can {
     "read" should {
       "Ok" in {
-        when(userRepository.read(any())) thenReturn Future(Some(testUser))
-        val result: Future[Result] = userController.read.apply(fakeGetRequest.withBody(testUserCrn))
+        when(userRepository.read(any())) thenReturn Future.successful(Some(testUser))
+        val result: Future[Result] = userController.read(testUser.crn)
+          .apply(fakeGetRequest)
         status(result) shouldBe OK
         contentAsJson(result) shouldBe Json.toJson(testUser)
       }
 
       "NotFound" in {
-        when(userRepository.read(any())) thenReturn Future(None)
-        val result: Future[Result] = userController.read.apply(fakeGetRequest.withBody(testUserCrn))
+        when(userRepository.read(any())) thenReturn Future.successful(None)
+        val result: Future[Result] = userController.read(testUser.crn)
+          .apply(fakeGetRequest)
         status(result) shouldBe NOT_FOUND
       }
 
       "BadRequest" in {
-        val result: Future[Result] = userController.read.apply(fakeGetRequest.withBody(testBadJson))
+        when(userRepository.read(any())) thenReturn Future.failed(new RuntimeException)
+        val result: Future[Result] = userController.read(testUser.crn)
+          .apply(fakeGetRequest)
         status(result) shouldBe BAD_REQUEST
       }
     }

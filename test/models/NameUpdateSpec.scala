@@ -5,9 +5,8 @@ import helpers.AbstractTest
 import play.api.libs.json.{JsObject, Json}
 
 class NameUpdateSpec extends AbstractTest {
-  val updatedDetails: NameUpdateDetails = NameUpdateDetails("CRNTEST", "newName")
+  val updatedDetails: NameUpdateDetails = NameUpdateDetails("newName")
   val uDetailsJson: JsObject = Json.obj(
-    s"${DBKeys.crn}" -> s"${updatedDetails.crn}",
     s"${DBKeys.name}" -> s"${updatedDetails.name}"
   )
   "Name update details" can {
