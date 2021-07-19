@@ -6,18 +6,26 @@
 
 # Client routes
 GET     /clients/:crn                  controllers.ClientController.read(crn: String)
++nocsrf
 POST    /clients/register              controllers.RegistrationController.register
 DELETE  /clients/:crn                  controllers.ClientController.deleteClient(crn: String)
++nocsrf
 POST    /clients/:crn/login            service.LoginService.login(crn: String)
 
 # Client update routes
++nocsrf
 PATCH   /clients/:crn/name             controllers.ClientController.updateName(crn: String)
++nocsrf
 PATCH   /clients/:crn/contact-number   controllers.ClientController.updateContactNumber(crn: String)
++nocsrf
 PATCH   /clients/:crn/property         controllers.ClientController.updateProperty(crn: String)
++nocsrf
 PATCH   /clients/:crn/business-type    controllers.ClientController.updateBusinessType(crn: String)
 
 # Agent routes
++nocsrf
 PATCH   /clients/:crn/add              controllers.ClientController.addAgent(crn: String)
++nocsrf
 PATCH   /clients/:crn/remove           controllers.ClientController.removeAgent(crn: String)
 GET     /clients/:arn                  controllers.ClientController.readAllAgent(arn: String)
 
